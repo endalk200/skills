@@ -1,10 +1,10 @@
 ---
-name: source-dive
+name: source-context
 description: Fetch dependency source into a local cache so agents can inspect real implementations, not just docs or types. Prefer delegating non-trivial library investigation to a subagent that can fetch the correct version, explore the source tree, and return focused findings. Use when you need internal behavior, edge-case handling, tests, or implementation details for npm, PyPI, crates.io, and repo sources.
 allowed-tools: Bash(opensrc:*), Task
 ---
 
-# Source Dive
+# Source Context
 
 Use this skill when docs, type definitions, or surface-level examples are not enough and you need the implementation itself.
 
