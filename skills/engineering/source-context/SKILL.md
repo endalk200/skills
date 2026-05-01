@@ -39,14 +39,14 @@ grep "parse" $(opensrc path zod)/src/types.ts
 opensrc path pypi:flask@3.0.0
 ```
 
-`opensrc path <pkg>` prints the absolute path to downloaded source.
+`opensrc path <pkg>` prints the absolute path to downloaded source. Always prefer providing a version of the package to avoid unexpected behavior.
 
 ### Version Resolution
 
-For npm packages, `opensrc` can resolve the installed version from lockfiles such as `package-lock.json`, `bun.lock`, `pnpm-lock.yaml`, and `yarn.lock`. Use `--cwd` when the project root is elsewhere:
+For npm packages, `opensrc` can resolve the installed version from lockfiles such as `package-lock.json`, `bun.lock`, `pnpm-lock.yaml`, and `yarn.lock`. Use `--cwd` when the lockfiles are elsewhere in the project:
 
 ```bash
-opensrc path zod --cwd /path/to/project
+opensrc path zod --cwd /path/to/project/lock-file
 ```
 
 ## When to Use This Skill
