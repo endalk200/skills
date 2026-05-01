@@ -1,19 +1,19 @@
 ---
 name: to-issues
-description: Break a plan, spec, or PRD into independently-grabbable issues on the project issue tracker using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tickets, or break down work into issues.
+description: Break a plan, spec, or PRD into independently-grabbable local markdown issues under `.workflows/` using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tasks, or break down work into issues.
 ---
 
 # To Issues
 
-Break a plan into independently-grabbable issues using vertical slices (tracer bullets).
+Break a plan into independently-grabbable local markdown issues using vertical slices (tracer bullets).
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+Use local markdown files under `.workflows/` as the workflow record unless the user explicitly requests another destination. If a task is created from or for a PRD, nest it under that PRD's `tasks/` directory. If a task is standalone, place it under `.workflows/tasks/`.
 
 ## Process
 
 ### 1. Gather context
 
-Work from whatever is already in the conversation context. If the user passes an issue reference (issue number, URL, or path) as an argument, fetch it from the issue tracker and read its full body and comments.
+Work from whatever is already in the conversation context. If the user passes an issue reference as an argument, prefer local `.workflows/` markdown paths or identifiers and read the full file.
 
 ### 2. Explore the codebase (optional)
 
@@ -49,16 +49,33 @@ Ask the user:
 
 Iterate until the user approves the breakdown.
 
-### 5. Publish the issues to the issue tracker
+### 5. Write the issues to `.workflows/`
 
-For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. Apply the `needs-triage` triage label so each issue enters the normal triage flow.
+For each approved slice, create a new markdown issue file under `.workflows/`. Use the issue body template below. If the task is created from or for a PRD, place it under that PRD's `tasks/` directory. If it is not tied to a PRD, write it under `.workflows/tasks/`.
 
-Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
+Create issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
 
-<issue-template>
+Use this file convention unless the repo already has a stronger `.workflows/` convention:
+
+- PRD task path: `.workflows/prd/YYYY-MM-DD/NNN-prd-short-kebab-title/tasks/MMM-short-kebab-title.md`
+- Standalone task path: `.workflows/tasks/YYYY-MM-DD/NNN-short-kebab-title.md`
+- For PRD tasks, `MMM` is the next available sequence number within that PRD's `tasks/` directory
+- For standalone tasks, `NNN` is the next available sequence number within that date folder
+- Identifier: the filename without `.md`; references should use relative markdown links rather than bare identifiers
+- Parent and blocker references: relative markdown links to other `.workflows/` issue files
+
+## <issue-template>
+
+id: YYYY-MM-DD-NNN-short-kebab-title
+title: Short descriptive title
+type: AFK
+created: YYYY-MM-DD
+
+---
+
 ## Parent
 
-A reference to the parent issue on the issue tracker (if the source was an existing issue, otherwise omit this section).
+A relative markdown link to the parent `.workflows/` issue file (if the source was an existing local issue, otherwise omit this section).
 
 ## What to build
 
@@ -72,7 +89,7 @@ A concise description of this vertical slice. Describe the end-to-end behavior, 
 
 ## Blocked by
 
-- A reference to the blocking ticket (if any)
+- A relative markdown link to the blocking issue file (if any)
 
 Or "None - can start immediately" if no blockers.
 
