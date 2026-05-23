@@ -11,10 +11,11 @@ Skills I use daily for code work.
 - **[tdd](./engineering/tdd/SKILL.md)** — Test-driven development with a red-green-refactor loop. Builds features or fixes bugs one vertical slice at a time.
 - **[to-issues](./engineering/to-issues/SKILL.md)** — Break any plan, spec, or PRD into independently-grabbable issues using vertical slices.
 - **[to-prd](./engineering/to-prd/SKILL.md)** — Turn the current conversation context into a PRD and submit it as an issue.
-- **[zoom-out](./engineering/zoomout/SKILL.md)** — Tell the agent to zoom out and give broader context or a higher-level perspective on unfamiliar code.
+- **[zoom-out](./engineering/zoom-out/SKILL.md)** — Tell the agent to zoom out and give broader context or a higher-level perspective on unfamiliar code.
 
 ## Productivity
 
 General workflow tools, not code-specific.
 
 - **[grill-me](./productivity/grill-me/SKILL.md)** — Interview the user relentlessly about a plan or design until reaching shared understanding.
+- **[write-a-skill](./productivity/write-a-skill/SKILL.md)** — Create new agent skills with proper structure, progressive disclosure, and bundled resources.
