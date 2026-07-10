@@ -1,14 +1,26 @@
 {
   "name": "Endalk Skills",
   "skills": [
-    "./skills/engineering/conventional-commit",
-    "./skills/engineering/grill-with-docs",
-    "./skills/engineering/improve-codebase-architecture",
-    "./skills/engineering/source-context",
-    "./skills/engineering/tdd",
-    "./skills/engineering/to-issues",
-    "./skills/engineering/to-prd",
-    "./skills/engineering/zoomout",
-    "./skills/productivity/grill-me"
+    "./skills/code-review",
+    "./skills/codebase-design",
+    "./skills/conventional-commit",
+    "./skills/domain-modeling",
+    "./skills/edit-article",
+    "./skills/grill-me",
+    "./skills/grill-with-docs",
+    "./skills/grilling",
+    "./skills/handoff",
+    "./skills/implement",
+    "./skills/improve-codebase-architecture",
+    "./skills/prototype",
+    "./skills/research",
+    "./skills/setup-skills",
+    "./skills/source-context",
+    "./skills/tdd",
+    "./skills/teach",
+    "./skills/to-spec",
+    "./skills/to-tickets",
+    "./skills/wayfinder",
+    "./skills/writing-great-skills"
   ]
 }
