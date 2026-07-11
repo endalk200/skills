@@ -1,6 +1,7 @@
 {
   "name": "Endalk Skills",
   "skills": [
+    "./skills/babysit-pr",
     "./skills/code-review",
     "./skills/codebase-design",
     "./skills/conventional-commit",
@@ -12,6 +13,7 @@
     "./skills/handoff",
     "./skills/implement",
     "./skills/improve-codebase-architecture",
+    "./skills/investigate-library-upgrade",
     "./skills/prototype",
     "./skills/research",
     "./skills/setup-skills",
