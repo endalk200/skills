@@ -1,6 +1,7 @@
 {
   "name": "Endalk Skills",
   "skills": [
+    "./skills/babysit-pr",
     "./skills/code-review",
     "./skills/codebase-design",
     "./skills/conventional-commit",

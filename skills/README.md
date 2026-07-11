@@ -8,6 +8,7 @@ A common delivery workflow is:
 
 | Skill | Purpose | Invocation |
 | --- | --- | --- |
+| [`babysit-pr`](babysit-pr/SKILL.md) | Validate and triage PR review findings before addressing selected items. | Manual |
 | [`code-review`](code-review/SKILL.md) | Review changes against repository standards and the originating spec using parallel subagents. | Model or manual |
 | [`codebase-design`](codebase-design/SKILL.md) | Apply deep-module vocabulary and principles to interfaces, seams, testability, and architecture. | Model or manual |
 | [`conventional-commit`](conventional-commit/SKILL.md) | Create focused, safe commits using the Conventional Commits format. | Model or manual |
