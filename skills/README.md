@@ -19,6 +19,7 @@ A common delivery workflow is:
 | [`handoff`](handoff/SKILL.md) | Write a redacted handoff document so another agent can continue the session. | Manual |
 | [`implement`](implement/SKILL.md) | Implement a spec or ticket set, verify it, and review the result without committing it. | Manual |
 | [`improve-codebase-architecture`](improve-codebase-architecture/SKILL.md) | Find deepening opportunities and present them in a visual architecture report. | Manual |
+| [`investigate-library-upgrade`](investigate-library-upgrade/SKILL.md) | Trace an upgrade's upstream changes to repository usage before implementation. | Model or manual |
 | [`prototype`](prototype/SKILL.md) | Build throwaway logic or UI prototypes that answer a focused design question. | Model or manual |
 | [`research`](research/SKILL.md) | Investigate a question through primary sources and save cited findings in the repository. | Model or manual |
 | [`setup-skills`](setup-skills/SKILL.md) | Configure issue tracking, triage and Wayfinder labels, and domain-document conventions for the engineering skills. | Manual |
