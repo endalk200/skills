@@ -6,10 +6,6 @@ This repository contains agent skills I use in my daily work. Some are original;
 
 The collection currently contains 23 skills under [`skills/`](skills/). See the [skills catalog](skills/README.md) for their purposes and invocation modes.
 
-## Claude Plugin
-
-The Claude plugin manifest is defined in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json). It registers every skill in the collection using the flat `skills/<name>/` layout.
-
 ## Attribution
 
-Inspired by [Matt Pocock's skills](https://github.com/mattpocock/skills). Adapted skills have been reviewed and adjusted for this repository's workflows.
+Some of the skills in this repo are adopted from [Matt Pocock's skills](https://github.com/mattpocock/skills) and have been customized for my use cases and also adopted to work with other coding agent. Matt's skills are too dependent on claude code specific things.
