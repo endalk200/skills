@@ -4,7 +4,16 @@ Use this when touching data models, DTOs, row schemas, wire contracts, brands, v
 
 ## Records
 
-Default to `Schema.Struct(...)` plus a same-name `interface`.
+Choose the representation from the decoded value that the program needs:
+
+| Representation | Decoded runtime value | TypeScript identity | Behavior |
+| --- | --- | --- | --- |
+| `Schema.Struct` | Plain object | Structural | Module-level functions |
+| `Schema.Opaque` around a struct | The same plain object | Opaque name; add a brand for nominal separation | Static members only |
+| `Schema.asClass(schema)` | Whatever the wrapped schema already decodes | Unchanged | Static members only |
+| `Schema.Class` | Prototype-backed class instance | Structural unless branded | Static and instance members |
+
+Use `Schema.Struct(...)` when the value is an ordinary structural record.
 
 ```ts
 export const User = Schema.Struct({
@@ -16,7 +25,101 @@ export const User = Schema.Struct({
 export interface User extends Schema.Schema.Type<typeof User> {}
 ```
 
-Guidance:
+The value-level `User` is the schema and the type-level `User` is the interface. Keeping the names aligned gives callers one import name, but both declarations are still required.
+
+Use `Schema.Opaque` when the runtime value should remain a plain object but the public TypeScript type should display as one named type.
+
+```ts
+export class Point extends Schema.Opaque<Point>()(
+  Schema.Struct({
+    x: Schema.Finite,
+    y: Schema.Finite,
+  }),
+) {
+  static readonly decode = Schema.decodeUnknownEffect(this)
+}
+
+const point = Point.make({ x: 1, y: 2 })
+```
+
+`Schema.Finite` accepts finite JavaScript numbers and rejects `NaN`, `Infinity`, and `-Infinity`.
+
+Treat the class syntax as a thin type shell:
+
+- Construct with `.make(...)`, not `new`.
+- Keep behavior on the static side or in module-level functions.
+- Add a nominal brand when two opaque schemas with the same fields must not be assignable to each other.
+- Calling schema combinators such as `.annotate(...)` returns the wrapped struct representation, not another opaque class.
+
+Use `Schema.asClass(schema)` when any existing schema—including a primitive, union, or struct—only needs co-located static helpers.
+
+```ts
+export class UserName extends Schema.asClass(Schema.NonEmptyString) {
+  static readonly decode = Schema.decodeUnknownEffect(this)
+}
+```
+
+`Schema.asClass` preserves the decoded type. It does not add nominal identity, prototype-backed instances, instance methods, or constructors.
+
+V4 schemas are not generally classes themselves. When migrating code that extended a primitive, literal, union, or other schema in v3 only to add static members, use `Schema.asClass`.
+
+Use `Schema.Class` when decoding must produce a real class instance or domain behavior belongs on each instance.
+
+```ts
+export class Point extends Schema.Class<Point>("Geometry/Point")({
+  x: Schema.Finite,
+  y: Schema.Finite,
+}) {
+  static readonly origin = new Point({ x: 0, y: 0 })
+
+  invert() {
+    return new Point({ x: this.y, y: this.x })
+  }
+}
+```
+
+Class schemas:
+
+- support `new`, `.make(...)`, static members, instance methods, getters, setters, and custom constructors
+- decode a plain field structure through a transformation that produces a class instance
+- preserve the prototype, so `instanceof` and instance methods work
+- provide structural comparison through `Equal.equals`
+- combine the runtime schema value and TypeScript type under one class symbol
+
+### Class Structural-Typing Footgun
+
+TypeScript can accept a plain object where an unbranded class type is expected when their visible fields match. The class schema still requires a class instance on its decoded side.
+
+```ts
+export class Point extends Schema.Class<Point>("Geometry/Point")({
+  x: Schema.Finite,
+  y: Schema.Finite,
+}) {}
+
+// This can type-check structurally, but it is not a Point instance.
+const unsafe: Effect.Effect<Point> = Effect.succeed({ x: 0, y: 0 })
+
+const safe: Effect.Effect<Point> = Effect.succeed(new Point({ x: 0, y: 0 }))
+```
+
+This mismatch is especially dangerous in `HttpApi`, RPC, and other schema-driven handlers: the response type may compile while runtime encoding rejects it because it never passed through the class transformation.
+
+Add the class API's nominal brand type parameter when plain structural substitution would be unsafe. The brand is a TypeScript-only unique-symbol property declared with the class; Effect cannot synthesize that declaration-site identity as a runtime default. The string identifier is runtime schema metadata and is not a substitute for the brand. Check the project-pinned v4 signature because this API is still evolving.
+
+Prefer a branded class for HTTP/RPC payloads and successes, persisted domain entities, and any API that requires actual instances. An unbranded class can fit local code where every value is constructed or decoded immediately and structural substitution is harmless.
+
+### Selection Rules
+
+- Pick `Schema.Struct` for DTOs, wire shapes, storage rows, and behavior-free records.
+- Pick `Schema.Opaque` for a named plain-object type with `.make(...)` and optional static helpers.
+- Pick `Schema.asClass` to add static helpers without changing a schema's decoded type.
+- Pick `Schema.Class` for prototypes, `instanceof`, instance behavior, class construction, or class-aware structural comparison.
+- Use `Schema.TaggedClass` when those class semantics are needed for a tagged variant; use `Schema.TaggedStruct` when a plain tagged object is enough.
+- Keep domain behavior module-scoped for structs and opaque structs; co-locate it on instances only when that is the reason for choosing a class.
+
+The identifier passed to `Schema.Class` supports runtime identity, diagnostics, schema metadata, and hot-reload/module-duplication behavior. Give it a stable, collision-resistant value such as a package-qualified name. It cannot provide TypeScript nominality because a string is not globally unique in a TypeScript program. When the Effect language server is configured, use its class snippet and identifier convention instead of retyping the ceremony.
+
+General guidance:
 
 - Add `.annotate({ identifier: "User" })` only when tooling consumes it: HTTP API, RPC, OpenAPI/JSON Schema, docs, diagnostics, or codegen.
 - Use `schema.make(...)` when construction is trusted.
@@ -105,7 +208,7 @@ Guidance:
 - Prefer a principled split over forcing one representation everywhere: Data internally, Schema at boundaries.
 - Use `Schema.tag(...)` when an external contract has a custom discriminator field such as `type` or `kind`; combine those structs with `Schema.toTaggedUnion("type")` when union helpers are needed.
 - If the encoded contract omits the discriminant, use `Schema.tagDefaultOmit(...)` deliberately.
-- Avoid `Schema.Class` and `Schema.TaggedClass` for new data models.
+- Choose `Schema.TaggedClass` only when the variant needs class-instance semantics; otherwise keep the lighter `Schema.TaggedStruct`.
 
 ## Errors
 
@@ -124,6 +227,7 @@ export class PersistenceError extends Schema.TaggedErrorClass<PersistenceError>(
 Guidance:
 
 - Map infrastructure failures into domain-specific tagged errors at service boundaries.
+- Use instance getters to derive messages, status codes, or other diagnostics from stored error fields when that avoids redundant constructor data.
 - Include operation labels when they help diagnose adapter, persistence, provider, or transport failures.
 - Use schema unions for public API or transport error surfaces.
 - Use `Schema.Defect()` for defect-like payloads.
