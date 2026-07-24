@@ -40,7 +40,7 @@ If a task spans several branches, read all matching files before editing.
 - Use `Effect.fnUntraced` only for internal helpers where stack-frame/span metadata is intentionally unnecessary.
 - Prefer `Context.Service` for application services when the codebase has not standardized on another current service-tag style.
 - Build real service implementations with `Layer.effect(Service, Effect.gen(...))` and return `Service.of({ ... })`.
-- Model records with `Schema.Struct(...)` plus a same-name `interface`.
+- Choose `Schema.Struct`, `Schema.Opaque`, or `Schema.Class` from the decoded value's runtime semantics; use `Schema.asClass` only to attach static helpers to an existing schema.
 - Model typed Effect errors with `Schema.TaggedErrorClass`.
 - Read runtime config through `Config`, not direct `process.env` access in application logic.
 - Use `Schedule` for retry, repeat, polling, pacing, and backoff policies.
@@ -51,7 +51,10 @@ If a task spans several branches, read all matching files before editing.
 
 ## Quick Selection Guide
 
-- Ordinary object record: `Schema.Struct(...)` plus same-name `interface`.
+- Plain structural object: `Schema.Struct(...)` plus a same-name `interface`.
+- Named structural object with the same plain-object runtime representation: `Schema.Opaque<Self>()(Schema.Struct(...))`.
+- Prototype-backed domain object with instance behavior: `Schema.Class<Self>("Identifier")(...)`; add a nominal brand when structural substitution would be unsafe.
+- Existing schema that only needs co-located static helpers: `Schema.asClass(schema)`.
 - Scalar ID/value object: constrained branded schema.
 - Internal workflow decision or state: `Data.TaggedEnum<...>` plus `Data.taggedEnum<...>()` constructors and exhaustive `$match`.
 - Reusable boundary-crossing tagged variant: `Schema.TaggedStruct(...)` plus same-name `interface`.
@@ -89,7 +92,6 @@ If a task spans several branches, read all matching files before editing.
 ## Do Nots
 
 - Do not use `as any`, non-null assertions, or unchecked casts to silence Effect typing problems.
-- Do not introduce `Schema.Class` or `Schema.TaggedClass` as default app data-modeling patterns.
 - Do not hand-roll `_tag` error classes when `Schema.TaggedErrorClass` fits.
 - Do not use cause-level recovery when typed-error recovery is enough.
 - Do not use `Layer.mergeAll(...)` or `provideMerge(...)` as blind make-it-compile tools.
