@@ -36,8 +36,11 @@ Atoms are lazy and automatically dispose when unused. Components reading the sam
 - Reset and release resources after the last subscriber unmounts: keep the default.
 - Retain an unused atom briefly: `atom.pipe(Atom.setIdleTTL(duration))`.
 - Retain shared state for the application lifetime: `atom.pipe(Atom.keepAlive)`.
+- Mount a resource-owning atom without reading its value: `useAtomMount(atom)`.
 - Refresh from an explicit UI event: `useAtomRefresh(atom)`.
 - Refresh when the page regains focus: `atom.pipe(Atom.refreshOnWindowFocus)`.
+
+An Effect returned by an atom runs in the atom's scope. Acquire resources with `Effect.acquireRelease`; releasing the final mount runs their finalizers.
 
 Endpoint results have no implicit freshness policy. Choose retention and refresh triggers from the endpoint's semantics.
 
@@ -58,7 +61,7 @@ const userAtom = Atom.make((get) =>
 )
 ```
 
-Render every `Result` state. A successful result can have `waiting: true` while a dependency-triggered refresh is running, allowing stale-while-refresh UI.
+Render every `Result` state. Use `Result.builder` to exhaustively distinguish expected tagged errors from defects. A successful result can have `waiting: true` while a dependency-triggered refresh is running, allowing stale-while-refresh UI.
 
 ```tsx
 import { Result, useAtomValue } from "@effect-atom/atom-react"
@@ -66,15 +69,16 @@ import { Result, useAtomValue } from "@effect-atom/atom-react"
 function User() {
   const result = useAtomValue(userAtom)
 
-  return Result.match(result, {
-    onInitial: () => <p>Loading…</p>,
-    onFailure: (failure) => <p>{String(failure.cause)}</p>,
-    onSuccess: ({ value, waiting }) => (
+  return Result.builder(result)
+    .onInitial(() => <p>Loading…</p>)
+    .onErrorTag("UserNotFound", ({ id }) => <p>User {id} was not found.</p>)
+    .onDefect(() => <p>Unexpected failure.</p>)
+    .onSuccess((user, { waiting }) => (
       <article aria-busy={waiting} style={{ opacity: waiting ? 0.6 : 1 }}>
-        {value.name}
+        {user.name}
       </article>
-    ),
-  })
+    ))
+    .render()
 }
 ```
 
@@ -141,7 +145,7 @@ const saveUserAtom = appRuntime.fn(
 )
 ```
 
-Use `Atom.family` for parameterized atoms. It returns the stable atom identity for a key instead of allocating a new atom during render.
+Use `Atom.family` for parameterized query or action atoms. It returns the stable atom identity for a key instead of allocating a new atom during render. A family of action atoms gives each key an independent action `Result`, including `waiting` and failure state.
 
 Connect reads and mutations with matching reactivity keys. Prefer the narrowest stable key that represents the data changed; use a collection key when a mutation can change membership.
 
@@ -153,6 +157,16 @@ const userAtom = Atom.family((id: UserId) =>
       return yield* repo.get(id)
     })
   ).pipe(Atom.withReactivity({ users: [id] }))
+)
+
+const toggleUserAtom = Atom.family((id: UserId) =>
+  appRuntime.fn(
+    Effect.fn("User.toggle")(function* () {
+      const repo = yield* UserRepo.Service
+      yield* repo.toggle(id)
+    }),
+    { reactivityKeys: { users: [id] } }
+  )
 )
 ```
 
@@ -195,6 +209,8 @@ Choose the atom shape from the UI consumption pattern:
 - Latest emitted value: `Atom.make(stream)`.
 - Progressive accumulated result: `Atom.fn` returning `Stream.scan(...)`.
 - Explicit chunked “load more”: `Atom.pull(stream.pipe(Stream.rechunk(size)))`.
+- Chunked streams requiring runtime services: `runtime.pull(stream)`.
+- Polling: `Atom.make(Stream.fromEffect(query).pipe(Stream.repeat(schedule)))`.
 - Custom multi-atom reducer semantics: an action atom using `get.set(...)`.
 
 ```ts
@@ -210,8 +226,10 @@ const searchAtom = Atom.fn((query: string) =>
 const pageAtom = Atom.pull(
   searchStream("effect").pipe(Stream.rechunk(20))
 )
+
+const servicePageAtom = appRuntime.pull(serviceBackedPageStream)
 ```
 
 `Atom.pull` accumulates emitted chunks. Its setter pulls the next chunk, and its successful value exposes `items` plus `done`; disable or remove “load more” when `done` is true.
 
-Keep stream acquisition, interruption, error policy, and backpressure in the stream itself. Use the atom to expose its reactive lifecycle to the UI.
+Keep stream acquisition, interruption, error policy, and backpressure in the stream itself. Model ordinary polling as one scheduled stream so refresh or unmount interrupts and rebuilds a single producer. Use the atom to expose its reactive lifecycle to the UI.
