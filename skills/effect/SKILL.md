@@ -1,7 +1,7 @@
 ---
 name: effect
 description: |
-  Opinionated guide for building production TypeScript applications with Effect v4. Use when implementing Effect workflows, services, layers, schemas, configuration, schedules, caches, streams, HTTP clients, or tests.
+  Opinionated guide for building production TypeScript applications with Effect v4. Use when implementing Effect workflows, services, layers, schemas, configuration, schedules, caches, streams, HTTP clients, Effect Atom or API-backed frontend state, or tests.
 license: MIT
 compatibility: Requires Effect v4. Examples are reviewed against the version documented in this repository.
 ---
@@ -28,6 +28,7 @@ Read only the branch references that match the task.
 - Retry, repeat, polling, backoff, jitter, rate-limit-aware policies, or pass loops: read `references/SCHEDULING.md`.
 - Memoization, per-key TTL caches, deduplicating concurrent lookups, or request batching: read `references/CACHING.md`.
 - Streams, event sources, async iterables, queues/pubsubs, pagination, backpressure, or stream consumers: read `references/STREAMS.md`.
+- Effect Atom, `@effect-atom`, API-backed UI, server state, frontend queries or mutations, derived/effectful atoms, atom actions, atom runtimes, reactivity keys, optimistic updates, or stream-backed UI state: read `references/EFFECT_ATOM.md`.
 - Outgoing HTTP calls, Effect HttpClient, status handling, or HTTP rate limiting: read `references/HTTP_CLIENTS.md`.
 - Effect tests, time, sleeps, concurrency synchronization, or fakes: read `references/TESTING.md`.
 
