@@ -24,6 +24,7 @@ OpenCode's paths and commands are relative to this repository root. When install
 | [`code-review`](code-review/SKILL.md)                                     | Review changes against repository standards and the originating spec using parallel subagents.                     | Model or manual |
 | [`codebase-design`](codebase-design/SKILL.md)                             | Apply deep-module vocabulary and principles to interfaces, seams, testability, and architecture.                   | Model or manual |
 | [`conventional-commit`](conventional-commit/SKILL.md)                     | Create focused, safe commits using the Conventional Commits format.                                                | Model or manual |
+| [`create-pr`](create-pr/SKILL.md)                                         | Publish the current branch as a review-ready pull or merge request.                                                 | Manual          |
 | [`domain-modeling`](domain-modeling/SKILL.md)                             | Sharpen domain terminology, maintain `CONTEXT.md`, and record durable architectural decisions.                     | Model or manual |
 | [`edit-article`](edit-article/SKILL.md)                                   | Restructure and tighten an article while preserving information dependencies.                                      | Manual          |
 | [`grill-me`](grill-me/SKILL.md)                                           | Start a relentless interview that sharpens a plan or design.                                                       | Manual          |

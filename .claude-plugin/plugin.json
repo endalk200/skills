@@ -5,6 +5,7 @@
     "./skills/code-review",
     "./skills/codebase-design",
     "./skills/conventional-commit",
+    "./skills/create-pr",
     "./skills/domain-modeling",
     "./skills/edit-article",
     "./skills/grill-me",
