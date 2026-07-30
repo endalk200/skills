@@ -8,6 +8,7 @@
     "./skills/create-pr",
     "./skills/domain-modeling",
     "./skills/edit-article",
+    "./skills/effect",
     "./skills/grill-me",
     "./skills/grill-with-docs",
     "./skills/grilling",
@@ -23,6 +24,7 @@
     "./skills/teach",
     "./skills/to-spec",
     "./skills/to-tickets",
+    "./skills/triage",
     "./skills/wayfinder",
     "./skills/writing-great-skills"
   ]

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Effect"
+  short_description: "Build production apps with Effect v4"

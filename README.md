@@ -4,7 +4,11 @@ This repository contains agent skills I use in my daily work. Some are original;
 
 ## Skills
 
-The collection currently contains 24 published skills under [`skills/`](skills/). See the [skills catalog](skills/README.md) for their purposes and invocation modes.
+The collection currently contains 26 published skills under [`skills/`](skills/). See the [skills catalog](skills/README.md) for their purposes and invocation modes.
+
+## Validation
+
+Run `python3 scripts/validate-skills.py` after adding, removing, or changing skill metadata. The validator keeps the active skill directories, catalog, Claude plugin manifest, Codex metadata, and invocation policies synchronized.
 
 ## Attribution
 
