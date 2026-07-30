@@ -1,7 +1,5 @@
 # Streams
 
-Use this when working with `Stream`, event sources, async iterables, queue/pubsub-backed streams, pagination, backpressure, throttling, debouncing, or long-lived stream consumers.
-
 ## Mental Model
 
 `Stream<A, E, R>` is an effectful source that can emit many `A` values over time, fail with `E`, and require services `R`. Streams are pull-based and backpressured; consumption controls demand.
@@ -16,7 +14,7 @@ Use streams for sources that are naturally many-valued and time-ordered:
 - scheduled ticks when values matter
 - pipelines with filtering, mapping, buffering, throttling, or bounded concurrent processing
 
-Do not use streams just to loop forever. For one repeated effect with no emitted values, use `Effect.repeat(...)` with `Schedule`; read `SCHEDULING.md`.
+Use `Effect.repeat(...)` with `Schedule` for a repeated effect with no emitted values; use Stream when the emitted values matter.
 
 ## Source Chooser
 
@@ -26,6 +24,7 @@ Do not use streams just to loop forever. For one repeated effect with no emitted
 - Broadcast events: `PubSub` plus `Stream.fromPubSub(...)`.
 - Latest-value state plus updates: `SubscriptionRef`.
 - Schedule-generated ticks/values: `Stream.fromSchedule(...)`.
+- Effect result emitted on a schedule: `Stream.fromEffectSchedule(effect, schedule)`.
 - Paginated pull APIs: `Stream.paginate(...)`; its step function is already effectful, returning `Effect<[chunk, Option<nextState>]>`.
 - Async iterable/platform source: `Stream.fromAsyncIterable(...)` when no native Effect source exists.
 - Effect that produces a stream after reading services/config: `Stream.unwrap(...)`.
@@ -40,7 +39,7 @@ Do not use streams just to loop forever. For one repeated effect with no emitted
 - Multiple inner streams concurrently: `Stream.flatMap(fn, { concurrency })`.
 - Keep only matching values: `Stream.filter(...)` / `Stream.filterEffect(...)`.
 - Stateful transformation: `Stream.mapAccum(...)` / `Stream.mapAccumEffect(...)`.
-- Paginated pull-to-pages: prefer `Stream.paginate(...)` over hand-rolled loops. There is no separate `Stream.paginateEffect`.
+- Paginated pull-to-pages: `Stream.paginate(...)`; its page function is already effectful.
 
 ## Consumption Chooser
 
@@ -51,7 +50,7 @@ Do not use streams just to loop forever. For one repeated effect with no emitted
 - Fold into a value: `Stream.runFold(...)`.
 - Long-lived consumer in a layer: `stream.pipe(Stream.runForEach(...), Effect.forkScoped)`.
 
-Avoid `Stream.runCollect` on unbounded or production event streams.
+Reserve `Stream.runCollect` for bounded streams.
 
 ## Long-Lived Consumers
 
@@ -60,7 +59,7 @@ Own long-lived stream consumers in layers and fork them into the layer scope.
 ```ts
 export const layer = Layer.effectDiscard(
   Effect.gen(function* () {
-    const gateway = yield* Gateway.Service
+    const gateway = yield* Gateway
 
     yield* gateway.events.pipe(
       Stream.filter(isMessageEvent),

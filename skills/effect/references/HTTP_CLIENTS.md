@@ -1,7 +1,5 @@
 # HTTP Clients
 
-Use this when writing outgoing HTTP calls, Effect HttpClient adapters, status classification, HTTP retries, or rate limiting.
-
 Use Effect HTTP client modules for outgoing HTTP in app/provider code:
 
 - `effect/unstable/http/HttpClient`

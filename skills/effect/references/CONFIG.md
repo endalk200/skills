@@ -1,8 +1,6 @@
 # Config
 
-Use this when reading runtime configuration, env vars, `.env` files, provider-specific settings, or writing `layerConfig(...)` helpers.
-
-Read runtime configuration through Effect `Config` recipes and provider layers, not direct `process.env` access inside application logic.
+Read runtime configuration through Effect `Config` recipes and provider layers. Keep direct environment access at the application boundary.
 
 ```ts
 export const dataDirectoryConfig = Config.schema(
@@ -11,7 +9,7 @@ export const dataDirectoryConfig = Config.schema(
 )
 
 export const layerFromEnvironment = Layer.effect(
-  Configuration.Service,
+  Configuration,
   Effect.gen(function* () {
     const apiKey = yield* Config.redacted("API_KEY")
     const optionalModel = yield* Config.option(Config.string("MODEL"))
@@ -19,7 +17,7 @@ export const layerFromEnvironment = Layer.effect(
       Config.withDefault(false),
     )
 
-    return Configuration.Service.of({ apiKey, optionalModel, enabled })
+    return Configuration.of({ apiKey, optionalModel, enabled })
   }),
 )
 ```
@@ -41,6 +39,7 @@ export const layerFromEnvironment = Layer.effect(
 - Use `ConfigProvider.layerAdd(provider)` for fallbacks; pass `{ asPrimary: true }` when the added provider must override the current provider.
 - Use `ConfigProvider.fromUnknown(...)` for deterministic test config.
 - Use `ConfigProvider.fromEnv(...)` for environment variables.
+- Built-in providers treat an empty string as missing by default; pass `{ preserveEmptyStrings: true }` when an empty string is a meaningful value.
 - Use `ConfigProvider.constantCase` when camelCase schema keys should read `SCREAMING_SNAKE_CASE` env vars.
 - Use `ConfigProvider.nested(...)` to scope a provider under a prefix.
 - Treat `.env`, directory, and environment providers as startup/boundary sources, not business-workflow reads.
@@ -54,14 +53,14 @@ export const layerConfig = (
   config: Config.Wrap<ClientOptions>,
 ) =>
   Layer.effect(
-    Client.Service,
+    Client,
     Config.unwrap(config).pipe(
       Effect.flatMap(makeClient),
-      Effect.map((client) => Client.Service.of(client)),
+      Effect.map((client) => Client.of(client)),
     ),
   )
 ```
 
 Use this pattern when a service naturally supports runtime config while still allowing tests to pass concrete values.
 
-Use `Layer.succeed(AppConfiguration.Service, testConfig)` when the app already wraps environment config in an application service and the test does not need to exercise Config decoding itself.
+Use `Layer.succeed(AppConfiguration, testConfig)` when the app already wraps environment config in an application service and the test does not need to exercise Config decoding itself.
