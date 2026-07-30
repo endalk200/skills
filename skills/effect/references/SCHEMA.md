@@ -1,7 +1,5 @@
 # Schema And Data Modeling
 
-Use this when touching data models, DTOs, row schemas, wire contracts, brands, variants, optional fields, or decoders.
-
 ## Records
 
 Choose the representation from the decoded value that the program needs:
@@ -10,7 +8,7 @@ Choose the representation from the decoded value that the program needs:
 | --- | --- | --- | --- |
 | `Schema.Struct` | Plain object | Structural | Module-level functions |
 | `Schema.Opaque` around a struct | The same plain object | Opaque name; add a brand for nominal separation | Static members only |
-| `Schema.asClass(schema)` | Whatever the wrapped schema already decodes | Unchanged | Static members only |
+| Direct schema subclass | Whatever the base schema already decodes | Unchanged | Static members only |
 | `Schema.Class` | Prototype-backed class instance | Structural unless branded | Static and instance members |
 
 Use `Schema.Struct(...)` when the value is an ordinary structural record.
@@ -22,10 +20,10 @@ export const User = Schema.Struct({
   email: Schema.optionalKey(Schema.String),
 })
 
-export interface User extends Schema.Schema.Type<typeof User> {}
+export type User = typeof User.Type
 ```
 
-The value-level `User` is the schema and the type-level `User` is the interface. Keeping the names aligned gives callers one import name, but both declarations are still required.
+The value-level `User` is the schema and the type-level `User` is an optional alias. Declaration merging with a same-name interface is also valid when the project prefers that style; the schema already exposes its decoded type through `.Type`.
 
 Use `Schema.Opaque` when the runtime value should remain a plain object but the public TypeScript type should display as one named type.
 
@@ -51,17 +49,15 @@ Treat the class syntax as a thin type shell:
 - Add a nominal brand when two opaque schemas with the same fields must not be assignable to each other.
 - Calling schema combinators such as `.annotate(...)` returns the wrapped struct representation, not another opaque class.
 
-Use `Schema.asClass(schema)` when any existing schema—including a primitive, union, or struct—only needs co-located static helpers.
+Subclass an existing schema directly when it only needs co-located static helpers.
 
 ```ts
-export class UserName extends Schema.asClass(Schema.NonEmptyString) {
+export class UserName extends Schema.NonEmptyString {
   static readonly decode = Schema.decodeUnknownEffect(this)
 }
 ```
 
-`Schema.asClass` preserves the decoded type. It does not add nominal identity, prototype-backed instances, instance methods, or constructors.
-
-V4 schemas are not generally classes themselves. When migrating code that extended a primitive, literal, union, or other schema in v3 only to add static members, use `Schema.asClass`.
+Direct schema subclassing preserves the decoded type and the base schema's static helpers, including `.make(...)`. It does not add nominal identity, prototype-backed values, instance methods, or a `new` constructor.
 
 Use `Schema.Class` when decoding must produce a real class instance or domain behavior belongs on each instance.
 
@@ -112,7 +108,7 @@ Prefer a branded class for HTTP/RPC payloads and successes, persisted domain ent
 
 - Pick `Schema.Struct` for DTOs, wire shapes, storage rows, and behavior-free records.
 - Pick `Schema.Opaque` for a named plain-object type with `.make(...)` and optional static helpers.
-- Pick `Schema.asClass` to add static helpers without changing a schema's decoded type.
+- Subclass an existing schema directly to add static helpers without changing its decoded type.
 - Pick `Schema.Class` for prototypes, `instanceof`, instance behavior, class construction, or class-aware structural comparison.
 - Use `Schema.TaggedClass` when those class semantics are needed for a tagged variant; use `Schema.TaggedStruct` when a plain tagged object is enough.
 - Keep domain behavior module-scoped for structs and opaque structs; co-locate it on instances only when that is the reason for choosing a class.
@@ -122,9 +118,9 @@ The identifier passed to `Schema.Class` supports runtime identity, diagnostics, 
 General guidance:
 
 - Add `.annotate({ identifier: "User" })` only when tooling consumes it: HTTP API, RPC, OpenAPI/JSON Schema, docs, diagnostics, or codegen.
-- Use `schema.make(...)` when construction is trusted.
-- Use `schema.makeEffect(...)` when construction failure should stay in the Effect error channel.
-- Decode unknown input at boundaries with `Schema.decodeUnknownEffect(...)` by default.
+- Decode unknown encoded input at boundaries with `Schema.decodeUnknownEffect(...)` by default.
+- Use `schema.makeEffect(...)` for typed constructor input when type-side validation failure should stay in the Effect error channel.
+- Use `schema.make(...)` for typed constructor input when construction is trusted or throwing is acceptable.
 - Use `Schema.decodeUnknownSync(...)` only in scripts, tests, or startup paths where throwing is acceptable.
 - Use `Schema.decodeUnknownOption(...)` only when mismatch details are intentionally discarded.
 - Use `Schema.decodeUnknownResult(...)` for pure code that wants explicit success/failure without Effect.
@@ -160,7 +156,7 @@ Guidance:
 - Use `Schema.optional(...)` only when explicit `undefined` is part of the contract.
 - Use `Schema.NullOr`, `Schema.UndefinedOr`, or `Schema.NullishOr` only when nullish values are truly part of the encoded contract.
 - Keep normalized defaulted values as required fields and apply defaults in constructors/decoding.
-- Do not make domain values optional merely for construction convenience.
+- Model domain optionality from the contract rather than construction convenience.
 
 ## Nominal Values
 
@@ -202,7 +198,7 @@ const label = Event.match(event, {
 
 Guidance:
 
-- Use `Data.TaggedEnum` for internal control-flow algebras; it provides constructors, `$is`, and exhaustive `$match`. Do not add a Schema solely to obtain these utilities.
+- Use `Data.TaggedEnum` for internal control-flow algebras that need constructors, `$is`, and exhaustive `$match`; reserve Schema variants for values that cross validation or encoding boundaries.
 - Use `Schema.TaggedStruct` for the ordinary Effect-owned `_tag` variant.
 - Use `Schema.TaggedUnion` when the union needs decoding, encoding, persistence, wire validation, JSON Schema derivation, or schema composition.
 - Prefer a principled split over forcing one representation everywhere: Data internally, Schema at boundaries.

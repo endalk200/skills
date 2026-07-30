@@ -1,19 +1,23 @@
 # Caching, Memoization, And Request Dedupe
 
-Use this when memoizing expensive lookups, caching per-key results with TTL, deduplicating concurrent identical calls, or considering request batching.
-
 Prefer `effect/Cache` over a `Map` + timestamp + prune-loop cache when its keyed memoization, TTL, capacity, lifecycle, and eviction semantics fit.
 
 ## Core Rules
 
 - `Cache.make({ capacity, lookup, timeToLive })` caches per-key lookups with one fixed TTL for all entries.
 - `Cache.makeWith(lookup, { capacity, timeToLive(exit, key) })` computes TTL per entry from the lookup's `Exit` — the tool for "cache successes, not failures".
-- Concurrent `Cache.get` calls for the same missing key share one pending lookup — dedupe is built in; do not add your own in-flight tracking.
-- `capacity` is required and bounds the cache; stop writing manual prune/evict loops.
+- Concurrent `Cache.get` calls for the same missing key share one pending lookup.
+- `capacity` is required and bounds the cache.
 - Return a zero TTL (`0` or `"0 millis"`) from `timeToLive` to avoid caching transient failures or degraded fallbacks without failing the caller. A short negative-cache TTL can be appropriate for stable failures such as not-found results.
 - `Cache.invalidate(cache, key)` / `Cache.refresh(cache, key)` handle explicit staleness; `Cache.has` checks without triggering a lookup.
-- Cache construction is effectful. Build the cache once in the owning layer/scope and share the handle; a cache built per call caches nothing.
-- For a single value (no key), use `Effect.cached(effect)` or `Effect.cachedWithTTL(effect, ttl)` instead of a one-key Cache.
+- Cache construction is effectful. Build the cache once in the owning layer or scope and share the handle; by default, lookup services are captured at construction. Use `requireServicesAt: "lookup"` only when callers should provide them per lookup.
+- For a single value, build and share the cached effect returned by `Effect.cached(effect)` or `Effect.cachedWithTTL(effect, ttl)`:
+
+```ts
+const cached = yield* Effect.cachedWithTTL(expensiveLookup, "5 minutes")
+const value = yield* cached
+```
+
 - For cached resources that need cleanup (connections, clients), use `ScopedCache`.
 
 ## Exit-Aware TTL (cache successes, skip degraded results)
@@ -67,10 +71,10 @@ Selection guide:
 - Many distinct keys, backend has a batch endpoint → `Effect.request` + `RequestResolver`.
 - Many distinct keys, per-item endpoint only → `Effect.forEach(..., { concurrency: n })`, optionally through a `Cache`.
 
-## Do Nots
+## Selection Guardrails
 
-- Do not hand-roll Map/TTL/prune caches, in-flight dedupe maps, or LRU logic when `Cache` fits.
+- Use `Cache` instead of custom Map/TTL/prune, in-flight dedupe, or LRU logic when its lifecycle fits.
 - Choose failure TTLs by semantics. Skip transient failures and degraded fallbacks by default; bounded negative caching can protect an upstream from repeated stable failures.
-- Do not build a cache inside the request handler or per call — hoist it to the owning layer.
-- Do not adopt `RequestResolver` batching for per-item REST endpoints just because "batching" sounds faster.
-- Do not put scoped client acquisition inside the cache lookup; acquire once in the layer.
+- Hoist cache construction to the owning layer.
+- Use `RequestResolver` batching only for a real batch backend.
+- Acquire scoped clients in the owning layer before constructing the lookup.

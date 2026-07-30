@@ -1,15 +1,16 @@
 # Effect Atom
 
-Use this when building reactive frontend state with `@effect-atom/atom` or a framework adapter such as `@effect-atom/atom-react`.
+Effect v4 provides Atom, AsyncResult, AtomHttpApi, and AtomRpc through `effect/unstable/reactivity`. Framework adapters such as `@effect/atom-react`, `@effect/atom-solid`, and `@effect/atom-vue` are published from the Effect monorepo; keep their versions aligned with the project-pinned `effect` package.
 
-Effect Atom is versioned independently from Effect. Check the project-pinned package before using APIs that are absent from these core patterns. This reference owns Atom-specific composition; read `SERVICES_LAYERS.md`, `STREAMS.md`, and `SCHEMA.md` for the underlying Effect concerns.
+This reference owns Atom-specific composition. Read `SERVICES_LAYERS.md`, `STREAMS.md`, and `SCHEMA.md` for the underlying Effect concerns.
 
 ## State And Hooks
 
 Define shared atoms at module scope so their identity is stable. Keep transient form and component-only state local to the component.
 
 ```tsx
-import { Atom, useAtomSet, useAtomValue } from "@effect-atom/atom-react"
+import { Atom } from "effect/unstable/reactivity"
+import { useAtomSet, useAtomValue } from "@effect/atom-react"
 
 const countAtom = Atom.make(0)
 const doubledAtom = Atom.make((get) => get(countAtom) * 2)
@@ -44,9 +45,9 @@ An Effect returned by an atom runs in the atom's scope. Acquire resources with `
 
 Endpoint results have no implicit freshness policy. Choose retention and refresh triggers from the endpoint's semantics.
 
-## Effectful Atoms And Result
+## Effectful Atoms And AsyncResult
 
-Returning an `Effect` from `Atom.make` produces an atom of `Result.Result`. Read reactive inputs before the asynchronous work so a change interrupts/rebuilds the computation with the new input.
+Returning an `Effect` from `Atom.make` produces an atom of `AsyncResult.AsyncResult`. Read reactive inputs before the asynchronous work so a change interrupts and rebuilds the computation with the new input.
 
 ```ts
 import { Effect } from "effect"
@@ -61,15 +62,16 @@ const userAtom = Atom.make((get) =>
 )
 ```
 
-Render every `Result` state. Use `Result.builder` to exhaustively distinguish expected tagged errors from defects. A successful result can have `waiting: true` while a dependency-triggered refresh is running, allowing stale-while-refresh UI.
+Render every `AsyncResult` state. Use `AsyncResult.builder` to exhaustively distinguish expected tagged errors from defects. A successful result can have `waiting: true` while a dependency-triggered refresh is running, allowing stale-while-refresh UI.
 
 ```tsx
-import { Result, useAtomValue } from "@effect-atom/atom-react"
+import { AsyncResult } from "effect/unstable/reactivity"
+import { useAtomValue } from "@effect/atom-react"
 
 function User() {
   const result = useAtomValue(userAtom)
 
-  return Result.builder(result)
+  return AsyncResult.builder(result)
     .onInitial(() => <p>Loading…</p>)
     .onErrorTag("UserNotFound", ({ id }) => <p>User {id} was not found.</p>)
     .onDefect(() => <p>Unexpected failure.</p>)
@@ -115,7 +117,7 @@ function RefreshButton() {
 }
 ```
 
-Use `useAtom(actionAtom)` when the UI also renders the action `Result` or disables controls from its `waiting` state. Use promise mode when the event handler needs the exact `Exit`.
+Use `useAtom(actionAtom)` when the UI also renders the action `AsyncResult` or disables controls from its `waiting` state. Use promise mode when the event handler needs the exact `Exit`.
 
 ```ts
 const save = useAtomSet(saveUserAtom, { mode: "promiseExit" })
@@ -131,21 +133,21 @@ const appRuntime = Atom.runtime(UserRepo.layer)
 
 const usersAtom = appRuntime.atom(
   Effect.gen(function* () {
-    const repo = yield* UserRepo.Service
+    const repo = yield* UserRepo
     return yield* repo.list()
   })
 ).pipe(Atom.withReactivity(["users"]))
 
 const saveUserAtom = appRuntime.fn(
   Effect.fn("User.save")(function* (input: UserInput) {
-    const repo = yield* UserRepo.Service
+    const repo = yield* UserRepo
     return yield* repo.save(input)
   }),
   { reactivityKeys: ["users"] }
 )
 ```
 
-Use `Atom.family` for parameterized query or action atoms. It returns the stable atom identity for a key instead of allocating a new atom during render. A family of action atoms gives each key an independent action `Result`, including `waiting` and failure state.
+Use `Atom.family` for parameterized query or action atoms. It returns the stable atom identity for a key instead of allocating a new atom during render. A family of action atoms gives each key an independent action `AsyncResult`, including `waiting` and failure state.
 
 Connect reads and mutations with matching reactivity keys. Prefer the narrowest stable key that represents the data changed; use a collection key when a mutation can change membership.
 
@@ -153,7 +155,7 @@ Connect reads and mutations with matching reactivity keys. Prefer the narrowest 
 const userAtom = Atom.family((id: UserId) =>
   appRuntime.atom(
     Effect.gen(function* () {
-      const repo = yield* UserRepo.Service
+      const repo = yield* UserRepo
       return yield* repo.get(id)
     })
   ).pipe(Atom.withReactivity({ users: [id] }))
@@ -162,7 +164,7 @@ const userAtom = Atom.family((id: UserId) =>
 const toggleUserAtom = Atom.family((id: UserId) =>
   appRuntime.fn(
     Effect.fn("User.toggle")(function* () {
-      const repo = yield* UserRepo.Service
+      const repo = yield* UserRepo
       yield* repo.toggle(id)
     }),
     { reactivityKeys: { users: [id] } }
@@ -170,7 +172,17 @@ const toggleUserAtom = Atom.family((id: UserId) =>
 )
 ```
 
-When an API is modeled with Effect HTTP API or RPC, prefer `AtomHttpApi.query` / `AtomHttpApi.mutation` or `AtomRpc.query` / `AtomRpc.mutation`. They preserve `Result`, runtime, and reactivity integration without a hand-written atom wrapper.
+When an API is modeled with Effect HTTP API or RPC, build a client with `AtomHttpApi.Service` or `AtomRpc.Service`, then use that client's `.query(...)` and `.mutation(...)` members. They preserve `AsyncResult`, runtime, and reactivity integration without a hand-written atom wrapper.
+
+```ts
+const Client = AtomHttpApi.Service()("Client", {
+  api: Api,
+  httpClient: HttpClientLayer,
+})
+
+const userAtom = Client.query("users", "get", { params: { id } })
+const updateUserAtom = Client.mutation("users", "update")
+```
 
 Keep one authoritative cache for each endpoint. When another data layer already owns freshness and retention, run the Effect client inside that owner instead of mirroring the same server state in an independent atom cache.
 
@@ -183,7 +195,7 @@ const optimisticUsersAtom = Atom.optimistic(usersAtom)
 
 const renameUserAtom = Atom.optimisticFn(optimisticUsersAtom, {
   reducer: (current, input: { id: UserId; name: string }) =>
-    Result.map(current, (users) =>
+    AsyncResult.map(current, (users) =>
       users.map((user) =>
         user.id === input.id ? { ...user, name: input.name } : user
       )
@@ -193,7 +205,7 @@ const renameUserAtom = Atom.optimisticFn(optimisticUsersAtom, {
       id: UserId
       name: string
     }) {
-      const repo = yield* UserRepo.Service
+      const repo = yield* UserRepo
       yield* repo.rename(input)
     })
   ),
@@ -210,7 +222,7 @@ Choose the atom shape from the UI consumption pattern:
 - Progressive accumulated result: `Atom.fn` returning `Stream.scan(...)`.
 - Explicit chunked “load more”: `Atom.pull(stream.pipe(Stream.rechunk(size)))`.
 - Chunked streams requiring runtime services: `runtime.pull(stream)`.
-- Polling: `Atom.make(Stream.fromEffect(query).pipe(Stream.repeat(schedule)))`.
+- Polling: `Atom.make(Stream.fromEffectSchedule(query, schedule))`.
 - Custom multi-atom reducer semantics: an action atom using `get.set(...)`.
 
 ```ts
