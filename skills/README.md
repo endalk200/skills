@@ -27,6 +27,7 @@ OpenCode's paths and commands are relative to this repository root. When install
 | [`create-pr`](create-pr/SKILL.md)                                         | Publish the current branch as a review-ready pull or merge request.                                                 | Manual          |
 | [`domain-modeling`](domain-modeling/SKILL.md)                             | Sharpen domain terminology, maintain `CONTEXT.md`, and record durable architectural decisions.                     | Model or manual |
 | [`edit-article`](edit-article/SKILL.md)                                   | Restructure and tighten an article while preserving information dependencies.                                      | Manual          |
+| [`effect`](effect/SKILL.md)                                               | Build production TypeScript applications with Effect v4 using source-backed patterns.                              | Model or manual |
 | [`grill-me`](grill-me/SKILL.md)                                           | Start a relentless interview that sharpens a plan or design.                                                       | Manual          |
 | [`grill-with-docs`](grill-with-docs/SKILL.md)                             | Grill a plan while maintaining its domain glossary and ADRs.                                                       | Manual          |
 | [`grilling`](grilling/SKILL.md)                                           | Stress-test a plan one decision at a time until shared understanding is reached.                                   | Model or manual |
@@ -42,5 +43,6 @@ OpenCode's paths and commands are relative to this repository root. When install
 | [`teach`](teach/SKILL.md)                                                 | Maintain a stateful teaching workspace with missions, lessons, resources, and learning records.                    | Manual          |
 | [`to-spec`](to-spec/SKILL.md)                                             | Synthesize the current discussion into a spec and publish it to the configured tracker.                            | Manual          |
 | [`to-tickets`](to-tickets/SKILL.md)                                       | Split a spec or plan into dependency-aware vertical-slice tickets and publish them.                                | Manual          |
-| [`wayfinder`](wayfinder/SKILL.md)                                         | Navigate large uncertain efforts through a shared map of investigation tickets.                                    | Manual          |
+| [`triage`](triage/SKILL.md)                                               | Move incoming issues and external pull requests through category and state roles into durable outcomes.            | Manual          |
+| [`wayfinder`](wayfinder/SKILL.md)                                         | Navigate large uncertain efforts through a shared map of decision tickets.                                         | Manual          |
 | [`writing-great-skills`](writing-great-skills/SKILL.md)                   | Provide principles and vocabulary for writing predictable, maintainable skills.                                    | Manual          |
