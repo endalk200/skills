@@ -31,9 +31,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 
 ### 2. Present findings and ask
 
-Summarise what's present and what's missing. Then take the applicable sections in order, one answer at a time.
-
-Assume the user does not know what these terms mean. Each section starts with a short explainer (what it is, why these skills need it, what changes if they pick differently). Then show the choices and the default.
+Summarise what's present and what's missing. Then take the applicable sections in order, one answer at a time. Lead each section with the recommended answer so the user can accept it in a word. Give a short explainer only when the choice genuinely branches, and skip a section when exploration or existing configuration already settled it.
 
 **Section A — Issue tracker.**
 
@@ -46,11 +44,7 @@ Default posture: these skills were designed for GitHub. If a `git remote` points
 - **Local markdown** — issues live as files under `.scratch/<feature>/` in this repo (good for solo projects or repos without a remote)
 - **Other** (Jira, Linear, etc.) — ask the user to describe the workflow in one paragraph; the skill will record it as freeform prose
 
-If — and only if — `triage` is installed and the user picked **GitHub** or **GitLab**, ask one follow-up:
-
-> Explainer: Open-source repos often receive feature requests as pull requests, not just issues — a PR is an issue with attached code. If you turn this on, `triage` pulls *external* PRs into the same queue and runs them through the same labels and states as issues (collaborators' in-flight PRs are left alone). Leave it off if PRs aren't a request surface for you.
-
-- **PRs as a request surface** — yes / no (default: no). Record the answer in `docs/agents/issue-tracker.md`. For local-markdown and other trackers, skip this question — there are no PRs.
+When `triage` is installed and the user picked **GitHub** or **GitLab**, record **PRs as a request surface: no** without asking. The tracker template explains the option so a repository that treats external PRs as requests can enable it later. For local-markdown and other trackers, omit the setting.
 
 **Section B — Triage and Wayfinder label vocabulary.**
 
@@ -76,7 +70,7 @@ If `wayfinder` is installed, configure its artifact roles:
 - `wayfinder:grilling` — a decision-making conversation
 - `wayfinder:task` — prerequisite work that unblocks a decision
 
-Default: each applicable role's string equals its name. Ask the user if they want to override any. If their issue tracker has no existing labels, the defaults are fine.
+Default: each applicable role's string equals its name. Ask one question: **"Keep the recommended label mappings?"** On yes, use the defaults or the compatible existing labels exploration found. Only if the user says no, collect the overrides. If their issue tracker has no existing labels, recommend the defaults.
 
 For GitHub or GitLab, compare the final mapping with the labels that already exist. Show the user any missing labels and ask whether to create them. If they approve, create and verify the labels with the configured tracker CLI. If they decline, record the mapping and identify which installed skill cannot apply each missing role.
 

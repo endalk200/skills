@@ -74,9 +74,9 @@ The answer isn't part of the body — it's recorded on resolution (see [Work thr
 
 Every ticket is either **HITL** — human in the loop, worked *with* a human who speaks for themselves — or **AFK**, driven by the agent alone. A HITL ticket only resolves through that live exchange; the agent never stands in for the human's side of it (a grilling agent that answers its own questions has broken this).
 
-- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases. Creates a markdown summary as a linked asset. Use when knowledge outside the current working directory is required.
+- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolve it with the `research` skill in an isolated agent using the host's agent mechanism, then link the cited markdown findings from the ticket. Use when knowledge outside the current working directory is required.
 - **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to — an outline, a rough take, a stub, or UI/logic code via the `prototype` skill. Links the prototype as an asset. Use when "how should it look" or "how should it behave" is the key question.
-- **Grilling** (HITL): Conversation via the `grilling` and `domain-modeling` skills, one question at a time. The default case.
+- **Grilling** (HITL): Conversation via the `grilling` and `domain-modeling` skills, a frontier round at a time. The default case.
 - **Task** (HITL or AFK): Manual work that must happen before a *decision* can be made — nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that *does* rather than decides — and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
 
 ## Fog of war
@@ -102,7 +102,7 @@ Ruling something out of scope is a scoping act, not a step on the route. When a 
 
 ## Invocation
 
-Two modes. Either way, **never resolve more than one ticket per session.**
+Two modes. Either way, **never resolve more than one ticket per session** — except for parallel AFK research tickets explicitly approved while charting.
 
 ### Chart the map
 
@@ -113,7 +113,8 @@ User invokes with a loose idea.
 3. **Draft and confirm.** Present the proposed Destination, Notes, initial tickets (name, type, and question), blocking relationships, **Not yet specified**, and **Out of scope**. Iterate until the user approves the complete structure. Do not write to the tracker before approval.
 4. **Create the map** (label role `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 5. **Create the approved tickets** as child issues of the map — then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
-6. Stop — charting the map is one session's work; do not also resolve tickets.
+6. **Offer parallel research.** If the approved frontier contains research tickets, offer to resolve them now in parallel. If the user accepts, dispatch one isolated agent per research ticket using the host's agent mechanism and the `research` skill. Each agent writes cited findings where the repo keeps research, then reports back so the ticket can link the asset, record the resolution, and close. Research tickets remain real blockers on the shared map even though the charting session burns them down concurrently.
+7. Stop — charting the map is one session's work; apart from the approved parallel research above, do not also resolve tickets.
 
 ### Work through the map
 

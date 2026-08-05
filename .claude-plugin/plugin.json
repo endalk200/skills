@@ -6,6 +6,7 @@
     "./skills/codebase-design",
     "./skills/conventional-commit",
     "./skills/create-pr",
+    "./skills/diagnosing-bugs",
     "./skills/domain-modeling",
     "./skills/edit-article",
     "./skills/effect",
@@ -25,7 +26,8 @@
     "./skills/to-spec",
     "./skills/to-tickets",
     "./skills/triage",
+    "./skills/wait-what",
     "./skills/wayfinder",
-    "./skills/writing-great-skills"
+    "./skills/writing-for-agents"
   ]
 }

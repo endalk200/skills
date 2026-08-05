@@ -17,10 +17,10 @@ This command is _informed_ by the project's domain model and built on a shared d
 
 ### 1. Explore
 
-**Scope before you scan — YAGNI.** Deepening a module pays off by making future changes to it easier, so put extra weight on the parts of the codebase that change often:
+**Scope before you scan — YAGNI.** Deepening a module pays off by making future changes to it easier, so decide _where_ to look before you look and put extra weight on the parts of the codebase that have recently changed:
 
-- If the user named a module, subsystem, or pain point, scan that area.
-- Otherwise, inspect a useful stretch of commit history to find recurring hot spots and begin there. Widen the scan only when the changes are too scattered to reveal a useful focus.
+- If the user named a direction — a module, subsystem, or pain point — take it and skip the inference below.
+- Otherwise, inspect a useful stretch of commit history to find recurring hot spots and let those paths pull your attention first. Widen the scan only when the changes are too scattered to reveal a useful focus.
 
 Read the project's domain glossary (`CONTEXT.md`) and any ADRs in the area you're touching first.
 
