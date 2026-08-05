@@ -4,7 +4,7 @@ This repository contains agent skills I use in my daily work. Some are original;
 
 ## Skills
 
-The collection currently contains 26 published skills under [`skills/`](skills/). See the [skills catalog](skills/README.md) for their purposes and invocation modes.
+The collection currently contains 28 published skills under [`skills/`](skills/). See the [skills catalog](skills/README.md) for their purposes and invocation modes.
 
 ## Validation
 

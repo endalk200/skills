@@ -72,7 +72,7 @@ Show counts and a one-line summary per item. Let the maintainer pick.
    - **Prior rejection** — read `.out-of-scope/*.md` and surface any record that resembles this request.
 2. **Recommend.** Tell the maintainer your category and state recommendation with reasoning, plus a brief codebase summary relevant to the request, including whether it is already implemented. Wait for direction.
 3. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a pull request, confirm the diff does what it claims by inspecting it and running the relevant tests or commands in an isolated worktree or another non-destructive checkout. Preserve unrelated user work. Report what happened: confirmed with a code path, failed, or insufficient detail. Insufficient detail is a strong `needs-info` signal.
-4. **Grill when needed.** If the request needs fleshing out, apply the `grilling` and `domain-modeling` skills together — grill it into shape one question at a time, sharpening domain terms and updating `CONTEXT.md` and ADRs inline as decisions land.
+4. **Grill when needed.** If the request needs fleshing out, apply the `grilling` and `domain-modeling` skills together — grill it into shape a frontier round at a time, sharpening domain terms and updating `CONTEXT.md` and ADRs inline as decisions land.
 5. **Apply the outcome:**
    - `ready-for-agent` — post an agent brief comment using [AGENT-BRIEF.md](AGENT-BRIEF.md).
    - `ready-for-human` — use the same structure as an agent brief, but note why it cannot be delegated: judgment calls, external access, design decisions, or manual testing.
