@@ -30,7 +30,6 @@ Complete these in order:
 - `effect/unstable/reactivity`, `@effect/atom-*`, `AsyncResult`, API-backed UI, frontend queries or mutations, atom runtimes, reactivity keys, optimistic updates, or stream-backed UI state: read `references/EFFECT_ATOM.md`.
 - Outgoing HTTP calls, Effect HttpClient, status handling, or HTTP rate limiting: read `references/HTTP_CLIENTS.md`.
 - Effect tests, time, sleeps, concurrency synchronization, or fakes: read `references/TESTING.md`.
-- Maintaining this skill or its audited package pins: read `validation/README.md`.
 
 ## Cross-Cutting Defaults
 
