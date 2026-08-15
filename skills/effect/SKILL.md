@@ -2,7 +2,6 @@
 name: effect
 description: |
   Effect v4 implementation guidance. Use for Effect workflows, Schema models, services and Layers, Config, Schedule or retry, Cache, Stream, unstable HTTP, reactivity or Atom, and Effect tests. Resolve the project-pinned version before applying a branch.
-license: MIT
 compatibility: Requires Effect v4. See references/UPSTREAM.md for the exact audited versions.
 ---
 

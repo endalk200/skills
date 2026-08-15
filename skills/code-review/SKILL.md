@@ -1,6 +1,7 @@
 ---
 name: code-review
 description: Review changes since a fixed point (commit, branch, tag, or merge-base) along two axes - Standards (does the code follow this repository's documented coding standards?) and Spec (does the code match what the originating issue or PRD asked for?). Runs both reviews in parallel subagents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
+disable-model-invocation: true
 ---
 
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
@@ -40,7 +41,7 @@ On top of whatever the repository documents, the Standards axis always carries t
 - **The repository overrides.** A documented repository standard always wins; where it endorses something the baseline would flag, suppress the smell.
 - **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation - and, like any standard here, skip anything tooling already enforces.
 
-Each smell reads *what it is* followed by *how to fix it*; match it against the diff:
+Each smell reads _what it is_ followed by _how to fix it_; match it against the diff:
 
 - **Mysterious Name** - a function, variable, or type whose name does not reveal what it does or holds. Rename it; if no honest name comes, the design is murky.
 - **Duplicated Code** - the same logic shape appears in more than one hunk or file in the change. Extract the shared shape and call it from both.

@@ -1,3 +1,5 @@
 interface:
   display_name: "Investigate Library Upgrade"
   short_description: "Trace an upgrade from upstream to local usage"
+policy:
+  allow_implicit_invocation: false

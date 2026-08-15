@@ -1,6 +1,7 @@
 ---
 name: investigate-library-upgrade
 description: Investigate what a dependency upgrade would take before implementation by tracing upstream primary-source changes to repository usage.
+disable-model-invocation: true
 ---
 
 # Investigate a library upgrade
