@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review changes since a fixed point (commit, branch, tag, or merge-base) along two axes - Standards (does the code follow this repository's documented coding standards?) and Spec (does the code match what the originating issue or PRD asked for?). Runs both reviews in parallel subagents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
+description: Only use this skill when explicitly invoked by the user. The user says use the code-review skill is the only time you should use this skill.
 disable-model-invocation: true
 ---
 
