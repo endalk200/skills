@@ -45,6 +45,7 @@ OpenCode's paths and commands are relative to this repository root. When install
 | [`to-spec`](to-spec/SKILL.md)                                             | Synthesize the current discussion into a spec and publish it to the configured tracker.                            | Manual          |
 | [`to-tickets`](to-tickets/SKILL.md)                                       | Split a spec or plan into dependency-aware vertical-slice tickets and publish them.                                | Manual          |
 | [`triage`](triage/SKILL.md)                                               | Move incoming issues and external pull requests through category and state roles into durable outcomes.            | Manual          |
+| [`unslop`](unslop/SKILL.md)                                               | Remove AI-writing patterns and add a specific human voice.                                                         | Model or manual |
 | [`wait-what`](wait-what/SKILL.md)                                         | Re-pitch the previous response with missing context and simpler language.                                          | Manual          |
 | [`wayfinder`](wayfinder/SKILL.md)                                         | Navigate large uncertain efforts through a shared map of decision tickets.                                         | Manual          |
 | [`writing-for-agents`](writing-for-agents/SKILL.md)                       | Write predictable skills, agent instructions, and documents reached by context pointers.                           | Model or manual |

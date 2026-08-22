@@ -26,6 +26,7 @@
     "./skills/to-spec",
     "./skills/to-tickets",
     "./skills/triage",
+    "./skills/unslop",
     "./skills/wait-what",
     "./skills/wayfinder",
     "./skills/writing-for-agents"
