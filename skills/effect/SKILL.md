@@ -1,7 +1,7 @@
 ---
 name: effect
 description: |
-  Effect v4 implementation guidance. Use for Effect workflows, Schema models, services and Layers, Config, Schedule or retry, Cache, Stream, unstable HTTP, reactivity or Atom, and Effect tests. Resolve the project-pinned version before applying a branch.
+  Effect v4 implementation and code-style guidance. Use for Effect workflows, composition and control flow, Schema models, services and Layers, Config, Schedule or retry, Cache, Stream, unstable HTTP, reactivity or Atom, and Effect tests. Resolve the project-pinned version before applying a branch.
 compatibility: Requires Effect v4. See references/UPSTREAM.md for the exact audited versions.
 ---
 
@@ -20,6 +20,7 @@ Complete these in order:
 
 ## Branch Chooser
 
+- Application entrypoints, dual APIs, pipelines, nested composition, branching, pattern matching, loops, traversal, or combining effects: read `references/CODE_STYLE.md`.
 - Data models, schemas, brands, variants, optional keys, or decoders: read `references/SCHEMA.md`.
 - Services, layers, runtime wiring, errors, `Effect.fn`, or test services: read `references/SERVICES_LAYERS.md`.
 - Runtime config, env variables, `ConfigProvider`, or `layerConfig`: read `references/CONFIG.md`.
@@ -32,7 +33,7 @@ Complete these in order:
 
 ## Cross-Cutting Defaults
 
-- Compose inline workflows with `Effect.gen`; define reusable traced operation boundaries with `Effect.fn("Domain.operation")`.
+- Define reusable traced operation boundaries with `Effect.fn("Domain.operation")`.
 - Use `Effect.fnUntraced` for reusable helpers whose stack-frame and span metadata are intentionally unnecessary.
 - Keep expected failures typed and preserve defects and interruption for the owning supervision boundary.
 - Decode unknown boundary input with `Schema.decodeUnknownEffect`; use `schema.makeEffect` for typed constructor input whose type-side validation can fail.

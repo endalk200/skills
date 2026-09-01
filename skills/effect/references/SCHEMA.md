@@ -158,11 +158,17 @@ Guidance:
 - Keep normalized defaulted values as required fields and apply defaults in constructors/decoding.
 - Model domain optionality from the contract rather than construction convenience.
 
-## Nominal Values
+## Branded Values
 
-- Use constrained branded schemas for scalar IDs and value objects.
-- Use normal schema constraints before `Schema.brand(...)` for most code.
-- Reach for `Schema.fromBrand(...)` only when the project already models brands with `Brand` constructors or wants the check packaged with the brand constructor.
+Choose the constructor from where the invariant is enforced:
+
+- Use a constrained branded schema for an ID or value object that crosses an unknown-input, persistence, or transport boundary. Apply ordinary schema constraints before `Schema.brand(...)` so validation and nominal identity stay in one boundary codec.
+- Use `Brand.nominal<A>()` for an internal distinction that needs nominal identity but no runtime validation. It only brands the value; construct it where the underlying value is already trusted.
+- Use `Brand.make<A>(filter)` when an internal brand owns a runtime predicate. A direct constructor call throws `BrandError` on invalid input; use its `.option`, `.result`, or `.is` members when invalid input is expected.
+- Use `Brand.all(...)` when one value must satisfy multiple brands with the same underlying type. Derive the combined type with `Brand.Brand.FromConstructor<typeof Constructor>` rather than restating the intersection.
+- Use `Schema.fromBrand(...)` when a schema boundary intentionally reuses an existing `Brand` constructor. Otherwise keep the constraint in Schema and avoid two validation sources of truth.
+
+`Brand.nominal` prevents accidental interchange at compile time; it does not make unknown data valid. Decode or validate before branding values received from outside the trusted domain.
 
 ## Variants
 
