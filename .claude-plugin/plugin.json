@@ -18,6 +18,7 @@
     "./skills/investigate-library-upgrade",
     "./skills/prototype",
     "./skills/research",
+    "./skills/retro",
     "./skills/setup-skills",
     "./skills/source-context",
     "./skills/tdd",

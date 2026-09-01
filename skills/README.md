@@ -37,6 +37,7 @@ OpenCode's paths and commands are relative to this repository root. When install
 | [`investigate-library-upgrade`](investigate-library-upgrade/SKILL.md)     | Trace an upgrade's upstream changes to repository usage before implementation.                                     | Manual          |
 | [`prototype`](prototype/SKILL.md)                                         | Build shareable logic or UI prototypes that answer a focused design question.                                      | Model or manual |
 | [`research`](research/SKILL.md)                                           | Investigate a question through primary sources and save cited findings in the repository.                          | Model or manual |
+| [`retro`](retro/SKILL.md)                                                 | Review a coding session and suggest improvements to the agent environment.                                         | Manual          |
 | [`setup-skills`](setup-skills/SKILL.md)                                   | Configure issue tracking, triage and Wayfinder labels, and domain-document conventions for the engineering skills. | Manual          |
 | [`source-context`](source-context/SKILL.md)                               | Fetch dependency source code for implementation-level and version-specific investigation.                          | Model or manual |
 | [`tdd`](tdd/SKILL.md)                                                     | Develop behavior through deliberate seams using a red-green-refactor cycle.                                        | Model or manual |
