@@ -38,11 +38,11 @@ Five **state** roles:
 
 For a pull request, the same states read against the attached code: `ready-for-agent` means a brief is attached and an agent should take the next step on the diff; `ready-for-human` means it is ready for a human to merge.
 
-Every triaged issue should carry exactly one category role and one state role. If roles conflict, flag the conflict and ask the maintainer before doing anything else.
+Every triaged issue should carry exactly one category role and one state role. If roles conflict, apply an explicit maintainer override when it resolves the conflict; otherwise ask before changing roles and continue authorized local investigation.
 
 These are canonical role names — the actual label strings used in the issue tracker may differ. Resolve them through `docs/agents/triage-labels.md`. If the mapping is missing, stop and ask the maintainer to invoke `setup-skills`.
 
-State transitions: an unlabeled issue normally goes to `needs-triage` first; from there it moves to `needs-info`, `ready-for-agent`, `ready-for-human`, or `wontfix`. `needs-info` returns to `needs-triage` once the reporter replies. The maintainer can override at any time — flag transitions that look unusual and ask before proceeding.
+State transitions: an unlabeled issue normally goes to `needs-triage` first; from there it moves to `needs-info`, `ready-for-agent`, `ready-for-human`, or `wontfix`. `needs-info` returns to `needs-triage` once the reporter replies. The maintainer can override at any time. Apply explicit overrides directly; ask about an unusual transition only when it is not already directed.
 
 ## Invocation
 
@@ -70,8 +70,8 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 1. **Gather context.** Read the full issue or pull request: body, comments, labels, author, dates, and the diff for a pull request. Parse prior triage notes so resolved questions are not repeated. Explore the codebase using the project's domain glossary and respect ADRs in the area. Run two checks against the codebase:
    - **Redundancy** — search for an existing implementation of the requested behavior by domain concept, not just the request's wording, and report where you looked. If found, it is an already-implemented `wontfix` outcome in step 5.
    - **Prior rejection** — read `.out-of-scope/*.md` and surface any record that resembles this request.
-2. **Recommend.** Tell the maintainer your category and state recommendation with reasoning, plus a brief codebase summary relevant to the request, including whether it is already implemented. Wait for direction.
-3. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a pull request, confirm the diff does what it claims by inspecting it and running the relevant tests or commands in an isolated worktree or another non-destructive checkout. Preserve unrelated user work. Report what happened: confirmed with a code path, failed, or insufficient detail. Insufficient detail is a strong `needs-info` signal.
+2. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a pull request, confirm the diff does what it claims by inspecting it and running the relevant tests or commands in an isolated worktree or another non-destructive checkout. Preserve unrelated user work. Report what happened: confirmed with a code path, failed, or insufficient detail. Insufficient detail is a strong `needs-info` signal.
+3. **Recommend.** Present the verification evidence, category and state recommendation, and whether the behavior is already implemented. Complete authorized local investigation before requesting disposition. Apply an existing explicit direction without reconfirmation; otherwise await direction before changing tracker state, posting comments, or closing the request.
 4. **Grill when needed.** If the request needs fleshing out, apply the `grilling` and `domain-modeling` skills together — grill it into shape a frontier round at a time, sharpening domain terms and updating `CONTEXT.md` and ADRs inline as decisions land.
 5. **Apply the outcome:**
    - `ready-for-agent` — post an agent brief comment using [AGENT-BRIEF.md](AGENT-BRIEF.md).
@@ -85,7 +85,7 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 
 ## Quick state override
 
-If the maintainer says "move #42 to ready-for-agent", trust them and apply the role directly. Still enforce exactly one category and one state; ask for the category only when it is missing and cannot be inferred safely. Confirm the role changes, comment, and closure behavior before acting. Skip grilling. If moving to `ready-for-agent` without a grilling session, ask whether they want an agent brief.
+If the maintainer says "move #42 to ready-for-agent", trust them and apply the role directly. Still enforce exactly one category and one state; ask for the category only when it is missing and cannot be inferred safely. Make the requested role changes without reconfirmation and skip grilling. A label override alone does not authorize a comment or closure; ask separately before those actions. If moving to `ready-for-agent` without a grilling session, offer an agent brief after applying the requested roles.
 
 ## Needs-info template
 

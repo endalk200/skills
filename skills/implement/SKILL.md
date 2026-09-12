@@ -6,6 +6,6 @@ disable-model-invocation: true
 
 Implement the work described by the user in the spec or tickets.
 
-Use `tdd` where possible, at pre-agreed seams.
+Use `tdd` where possible, at seams selected within the accepted scope and repository conventions.
 
-Run typechecking regularly, single test files regularly, and the full test suite once at the end.
+Run affected checks during implementation and complete the checks required by the accepted task and repository CI before declaring readiness. Reuse passing results while the code and environment they cover remain unchanged; rerun affected checks after relevant edits or failures. Report required checks as passed, failed, or not run.

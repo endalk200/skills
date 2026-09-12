@@ -11,12 +11,11 @@ Work source-verified: project conventions and the project-pinned Effect source t
 
 ## Version Gate
 
-Complete these in order:
+Identify the applicable project conventions and resolve the installed `effect` version once for the task. Compare it with `references/UPSTREAM.md` and reuse this result while the dependency version is unchanged.
 
-1. Read the nearest `AGENTS.md` and any project-local Effect practices document; finish with the applicable conventions identified.
-2. Resolve the installed `effect` version and inspect its exported source; finish with the definitions for every API the task will touch located.
-3. Compare that version with `references/UPSTREAM.md`; finish with one authoritative snapshot selected, using `source-context` to resolve mismatches or missing source.
-4. Read every matching branch below. Editing begins after all applicable references are loaded.
+Inspect project-pinned source for introduced APIs, changed semantics, uncertain behavior, or known version mismatches; use `source-context` when the required source is missing. Reuse applicable evidence while the covered API, usage, and version are unchanged.
+
+Use the branch chooser to load only the reference sections needed for the current change, consulting additional sections as the work requires them.
 
 ## Branch Chooser
 
@@ -56,7 +55,7 @@ Complete these in order:
 Before finishing:
 
 - account for every Effect API introduced or changed against the project-pinned source
-- apply every branch selected by the task
+- apply the guidance relevant to the changed behavior
 - run the narrowest relevant typecheck and tests
 - leave no unchecked cast, swallowed interruption, unscoped long-lived work, or unbounded retry introduced by the change
 

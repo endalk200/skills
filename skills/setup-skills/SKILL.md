@@ -12,7 +12,7 @@ Scaffold the per-repo configuration that the engineering skills assume:
 - **Triage and Wayfinder labels** — the strings used by whichever of those skills are installed
 - **Domain docs** — where `CONTEXT.md` and ADRs live, and the consumer rules for reading them
 
-This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write.
+Explore the repository and prepare complete configuration drafts before the final approval checkpoint. Ask early only for missing choices that materially affect those drafts. Reuse decisions and write authorization already supplied by the user.
 
 ## Process
 
@@ -31,7 +31,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 
 ### 2. Present findings and ask
 
-Summarise what's present and what's missing. Then take the applicable sections in order, one answer at a time. Lead each section with the recommended answer so the user can accept it in a word. Give a short explainer only when the choice genuinely branches, and skip a section when exploration or existing configuration already settled it.
+Summarise what is present and missing. Reuse existing configuration and accepted choices. Ask only for unresolved decisions needed to prepare complete drafts, grouping independent questions together. Include routine proposed defaults in the final draft instead of asking for approval at each section.
 
 **Section A — Issue tracker.**
 
@@ -70,25 +70,25 @@ If `wayfinder` is installed, configure its artifact roles:
 - `wayfinder:grilling` — a decision-making conversation
 - `wayfinder:task` — prerequisite work that unblocks a decision
 
-Default: each applicable role's string equals its name. Ask one question: **"Keep the recommended label mappings?"** On yes, use the defaults or the compatible existing labels exploration found. Only if the user says no, collect the overrides. If their issue tracker has no existing labels, recommend the defaults.
+Default: each applicable role's string equals its name. Reuse compatible existing labels or user-specified mappings; include unresolved defaults in the complete draft for final approval.
 
-For GitHub or GitLab, compare the final mapping with the labels that already exist. Show the user any missing labels and ask whether to create them. If they approve, create and verify the labels with the configured tracker CLI. If they decline, record the mapping and identify which installed skill cannot apply each missing role.
+For GitHub or GitLab, compare the proposed mapping with existing labels. Include any proposed label creations in the final draft and approval request, separately from local configuration writes. Create and verify labels only when that external action is authorized. If declined, record the mapping and identify which installed skill cannot apply each missing role.
 
 **Section C — Domain docs.**
 
 > Explainer: Some skills (`improve-codebase-architecture`, `domain-modeling`, and `tdd`) read a `CONTEXT.md` file to learn the project's domain language, and `docs/adr/` for past architectural decisions. They need to know whether the repo has one global context or multiple (e.g. a monorepo with separate frontend/backend contexts) so they look in the right place.
 
-Default to **single-context** — one `CONTEXT.md` plus `docs/adr/` at the repository root. Write that choice without asking unless exploration found genuine monorepo signals. When it did, offer **multi-context** — a root `CONTEXT-MAP.md` pointing to per-context `CONTEXT.md` files — and confirm the layout.
+Default to **single-context** — one `CONTEXT.md` plus `docs/adr/` at the repository root — in the draft. If exploration reveals unresolved monorepo layout choices, ask whether to use a root `CONTEXT-MAP.md` pointing to per-context `CONTEXT.md` files before preparing the final draft.
 
 ### 3. Confirm and edit
 
-Show the user a draft of:
+Resolve which instruction file to edit using step 4 before drafting. Show the user complete drafts of:
 
 - The `## Agent skills` block to add to whichever of `CLAUDE.md` / `AGENTS.md` is being edited (see step 4 for selection rules)
 - The contents of `docs/agents/issue-tracker.md` and `docs/agents/domain.md`
 - The contents of `docs/agents/triage-labels.md` when Section B ran
 
-Let them edit before writing.
+Include the exact target paths and any proposed external label creations. Incorporate feedback, then obtain approval for the complete drafts and required writes unless that scope is already authorized. Ask only about remaining unresolved choices or unauthorized actions.
 
 ### 4. Write
 

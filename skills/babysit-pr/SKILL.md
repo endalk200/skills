@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 Treat every review finding as an unverified claim. Build a **docket** that lets the user understand the concern, inspect the agent's judgement, and direct the next action by stable finding ID.
 
-Triage and execution are separate phases. A triage run reads the PR and may run local diagnostics, but it leaves code, PR text, comments, thread state, labels, and checks unchanged. Cross into execution only after the user directs it.
+Triage and execution are separate phases. By default, a triage run reads the PR and may run local diagnostics, but leaves code, PR text, comments, thread state, labels, and checks unchanged. Execute after direction for specific findings or under explicit standing authorization for a defined class of findings. Validate each finding before applying that authorization.
 
 ## Process
 
@@ -89,9 +89,9 @@ Investigate further: F5
 
 If there are no actionable findings, say which surfaces were checked and that the docket is empty. Triage is complete only when every docket entry appears in both the summary and the detailed report.
 
-### 6. Await and execute direction
+### 6. Apply existing direction or request it
 
-Accept natural language or the direction block; the user need not repeat the background. Ask only about IDs whose requested disposition is ambiguous. Before acting, compare the current PR head with the triaged SHA and revalidate affected entries if it moved.
+Accept natural language, the direction block, or explicit standing authorization that defines the permitted action and class of findings. Apply existing authorization without another checkpoint when a validated finding clearly qualifies. Ask only about findings whose disposition or authorization is ambiguous. Before acting, compare the current PR head with the triaged SHA and revalidate affected entries if it moved.
 
 For directed findings:
 
@@ -108,4 +108,4 @@ Execution is complete when every directed ID is either completed and verified or
 
 When the user asks to keep watching, use the environment's monitoring or automation mechanism to repeat the collection and triage phases. Track source URLs or IDs, update timestamps, the PR-description digest, and head SHA so each sweep highlights new, changed, and newly stale findings. Reuse the docket IDs in each report.
 
-Prior directions apply only to the findings they named. New findings always return through triage before execution.
+Directions for named findings apply only to those findings. Explicit standing authorization also applies to new findings within its defined class. Every new finding passes through triage before execution; ask for direction only when existing authorization does not cover it. Posting replies, resolving threads, editing PR text, creating issues, committing, and pushing each require authorization for that action.

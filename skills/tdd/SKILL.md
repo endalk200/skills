@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests.
+description: Test-driven development. Use when the user wants to build features or fix bugs test-first, or mentions "red-green-refactor".
 ---
 
 # Test-Driven Development
@@ -19,9 +19,7 @@ See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking g
 
 A **seam** is the place where the tested module presents its interface: where you observe behavior without reaching inside. Tests live at seams, never against internals.
 
-Before writing a test, identify the seam under test. If an existing public interface is the obvious seam, state it and proceed. If the seam is new or ambiguous, confirm it with the user first. You can't test everything — choosing seams deliberately is how testing effort lands on the critical paths and complex logic instead of every edge case.
-
-Ask: "What's the public interface, and which seams should we test?"
+Before writing a test, identify the seam under test using the accepted scope, existing interfaces, and repository conventions. State the choice and proceed for routine implementation decisions, including new seams within the authorized design. Ask only when the choice would materially change the agreed public contract, product behavior, or scope and that change is not already authorized. Continue independent authorized work while an answer is pending. Choose seams that exercise critical paths and complex logic.
 
 When the shape of that interface is itself in question — how deep the module is, where the seam belongs, or what the interface should expose — use the `codebase-design` skill for its module, interface, depth, seam, adapter, leverage, and locality vocabulary. Consult it as design reference rather than starting a separate session.
 

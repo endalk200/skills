@@ -41,21 +41,21 @@ The **frontier** is every ticket whose blockers are all complete — the tickets
 
 **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change — rename a column, retype a shared symbol — whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket — green is promised only there.
 
-### 4. Quiz the user
+### 4. Prepare complete drafts and confirm publication
 
-Present the proposed breakdown as a numbered list. For each ticket, show:
+Ask early only for missing decisions that prevent a complete draft. Prepare every ticket using the applicable template below, including its full acceptance criteria and blocking relationships. Present those complete drafts with a numbered summary containing:
 
 - **Title**: short descriptive name
 - **Blocked by**: which other tickets (if any) must complete first
 - **What it delivers**: the end-to-end behaviour this ticket makes work
 
-Ask the user:
+When feedback or approval is still needed, ask about unresolved questions such as:
 
 - Does the granularity feel right? (too coarse / too fine)
 - Are the blocking edges correct — does each ticket only depend on tickets that genuinely gate it?
 - Should any tickets be merged or split further?
 
-Iterate until the user approves the breakdown.
+Resolve substantive feedback in the complete drafts. Obtain approval for the final ticket contents and publication unless the user has already authorized publishing tickets with these contents or within this agreed scope. Do not repeat an approval already supplied.
 
 ### 5. Publish the tickets to the configured tracker
 

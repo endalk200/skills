@@ -102,19 +102,19 @@ Ruling something out of scope is a scoping act, not a step on the route. When a 
 
 ## Invocation
 
-Two modes. Either way, **never resolve more than one ticket per session** — except for parallel AFK research tickets explicitly approved while charting.
+Two modes. By default, resolve one ticket per session. If the user requests continued work, proceed through unblocked tickets within the authorized destination until that requested scope is complete or a material human decision or access requirement blocks progress. HITL tickets still require live human answers.
 
 ### Chart the map
 
 User invokes with a loose idea.
 
 1. **Name the destination.** Run a `grilling` and `domain-modeling` session to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first.
-2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and ask the user how they'd like to proceed.
+2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — summarize the route without creating a map. Continue if the user already authorized the next work; otherwise finish the planning request and offer the next step.
 3. **Draft and confirm.** Present the proposed Destination, Notes, initial tickets (name, type, and question), blocking relationships, **Not yet specified**, and **Out of scope**. Iterate until the user approves the complete structure. Do not write to the tracker before approval.
 4. **Create the map** (label role `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 5. **Create the approved tickets** as child issues of the map — then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
 6. **Offer parallel research.** If the approved frontier contains research tickets, offer to resolve them now in parallel. If the user accepts, dispatch one isolated agent per research ticket using the host's agent mechanism and the `research` skill. Each agent writes cited findings where the repo keeps research, then reports back so the ticket can link the asset, record the resolution, and close. Research tickets remain real blockers on the shared map even though the charting session burns them down concurrently.
-7. Stop — charting the map is one session's work; apart from the approved parallel research above, do not also resolve tickets.
+7. Finish after charting by default. If the user requested continued work, proceed through authorized unblocked tickets using the workflow below. Preserve approval requirements for tracker writes and live human decisions.
 
 ### Work through the map
 
