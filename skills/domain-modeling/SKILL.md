@@ -41,6 +41,12 @@ Create files lazily — only when you have something to write. If no `CONTEXT.md
 
 ## During the session
 
+Before creating or editing an ADR, read the project's ADR format, falling back to
+[ADR-FORMAT.md](./ADR-FORMAT.md). Keep each record focused on a coherent decision
+and its rationale. Put tunable engineering limits and rollout procedures in
+their owning reference or accepted issue. When revising an older ADR, make the
+current decision explicit and preserve history through Git or a supersession link.
+
 ### Challenge against the glossary
 
 When the user uses a term that conflicts with the existing language in `CONTEXT.md`, call it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"
