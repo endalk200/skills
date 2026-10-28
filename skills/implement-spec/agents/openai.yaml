@@ -1,0 +1,5 @@
+interface:
+  display_name: "Implement Spec"
+  short_description: "Implement a ticketed spec with parallel subagents"
+policy:
+  allow_implicit_invocation: false
