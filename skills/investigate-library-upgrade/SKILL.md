@@ -32,7 +32,7 @@ Trace each material claim to its primary source. Triangulate:
 
 Inspect breaking changes, deprecations, changed semantics or defaults, relevant fixes, exports, peer dependencies, dependency graph, engines, module format, build requirements, platforms, and configuration. Reconcile registry versions with tags and releases; treat gaps and ambiguous mappings as unknowns.
 
-Invoke `research` when the interval is broad, sources are fragmented, or a durable note would help the repository; continue local usage analysis while its background agent reads. Invoke `source-context` when documentation and types cannot settle version-specific behavior.
+When the interval is broad, sources are fragmented, or a durable note would help the repository, read the `research` skill completely and follow it; continue local usage analysis while its background agent reads. When documentation and types cannot settle version-specific behavior, read the `source-context` skill completely and follow it.
 
 Complete when every version in the interval is covered by the evidence chain or named as an evidence gap.
 
@@ -48,11 +48,11 @@ Complete when every discovered match belongs to an inspected usage shape or an e
 
 Cross-reference each upstream change with each relevant usage shape:
 
-- **No known impact** — inspected evidence shows no intersecting change.
-- **Mechanical migration** — the required edit is explicit and locally checkable.
-- **Behavioral risk** — compilation may succeed while semantics, defaults, timing, serialization, or output change.
-- **Design decision** — the repository must choose replacement behavior or architecture.
-- **Unknown** — evidence is missing, contradictory, inaccessible, or ambiguous.
+- **No known impact**: inspected evidence shows no intersecting change.
+- **Mechanical migration**: the required edit is explicit and locally checkable.
+- **Behavioral risk**: compilation may succeed while semantics, defaults, timing, serialization, or output change.
+- **Design decision**: the repository must choose replacement behavior or architecture.
+- **Unknown**: evidence is missing, contradictory, inaccessible, or ambiguous.
 
 Give every classification both sides of its evidence chain: an upstream citation and the local file/API evidence. Label inference as inference.
 

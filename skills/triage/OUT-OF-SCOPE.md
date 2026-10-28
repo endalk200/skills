@@ -2,8 +2,8 @@
 
 The `.out-of-scope/` directory stores persistent records of rejected feature requests. It provides:
 
-1. **Institutional memory** — why a feature was rejected.
-2. **Deduplication** — prior reasoning for similar future requests.
+1. **Institutional memory**: why a feature was rejected.
+2. **Deduplication**: prior reasoning for similar future requests.
 
 ## Directory structure
 
@@ -33,8 +33,8 @@ persistence that do not align with the project's focus.
 
 ## Prior requests
 
-- #42 — "Add dark mode support"
-- #87 — "Night theme for accessibility"
+- #42: "Add dark mode support"
+- #87: "Night theme for accessibility"
 ```
 
 ### Naming
@@ -58,9 +58,9 @@ During triage context gathering, read `.out-of-scope/*.md` and match the incomin
 
 If a record looks relevant, show the maintainer the prior decision and ask whether it still holds. The maintainer may:
 
-- **Confirm** — append the new request to the existing record and close it.
-- **Reconsider** — delete or update the record and continue normal triage.
-- **Distinguish** — explain why the requests differ and continue normal triage.
+- **Confirm**: append the new request to the existing record and close it.
+- **Reconsider**: delete or update the record and continue normal triage.
+- **Distinguish**: explain why the requests differ and continue normal triage.
 
 ## When to write
 
