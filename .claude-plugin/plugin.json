@@ -14,6 +14,7 @@
     "./skills/grilling",
     "./skills/handoff",
     "./skills/implement",
+    "./skills/implement-spec",
     "./skills/improve-codebase-architecture",
     "./skills/investigate-library-upgrade",
     "./skills/prototype",
@@ -24,11 +25,13 @@
     "./skills/tdd",
     "./skills/teach",
     "./skills/technical-writing",
+    "./skills/to-questionnaire",
     "./skills/to-spec",
     "./skills/to-tickets",
     "./skills/triage",
     "./skills/wait-what",
     "./skills/wayfinder",
+    "./skills/wizard",
     "./skills/writing-for-agents"
   ]
 }

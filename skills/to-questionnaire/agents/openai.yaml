@@ -1,0 +1,5 @@
+interface:
+  display_name: "To Questionnaire"
+  short_description: "Turn an open decision into a questionnaire for someone else"
+policy:
+  allow_implicit_invocation: false
