@@ -1,90 +1,80 @@
 ---
 name: code-review
-description: Only use this skill when explicitly invoked by the user. The user says use the code-review skill is the only time you should use this skill.
+description: Use only when the user invokes it to review the current change.
 disable-model-invocation: true
 ---
 
-Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
+# Code Review
 
-- **Standards** - does the code conform to this repository's documented coding standards?
-- **Spec** - does the code faithfully implement the originating issue, PRD, or spec?
+A second model reviews the change; you are the judge of its findings. The reviewer runs as a **child agent** through T3 Code's orchestration tools (`orchestrator_capabilities`, `delegate_task`), on **GPT-6.1 Sol** with **high** reasoning. A different model catches what the author's model is blind to, and your triage catches what the reviewer gets wrong.
 
-Both axes run as parallel subagents so they do not pollute each other's context, then this skill aggregates their findings.
+This skill needs T3 Code's orchestration tools. If they are unavailable, say so and stop: do not fall back to a same-model subagent or to reviewing it yourself.
 
-The issue tracker should have been configured for the repository. Use `setup-skills` if `docs/agents/issue-tracker.md` is missing.
+## 1. Resolve the reviewer
 
-## Process
+Call `orchestrator_capabilities` (search `gpt-6.1-sol`) and list the provider instances that offer GPT-6.1 Sol and can run a child task.
 
-### 1. Pin the fixed point
+- **Provider named at invocation** (for example `/code-review codex_soraunion`): use it. If it does not offer GPT-6.1 Sol, say so and ask for another; never switch the model.
+- **No provider named**: ask the user to pick one of the listed instances. Show each with its model id. Wait for the answer.
 
-Whatever the user said is the fixed point - a commit SHA, branch name, tag, `main`, `HEAD~5`, etc. If they did not specify one, ask for it.
+From the chosen provider's entry, take the exact model id (for example `gpt-6.1-sol` or `openai/gpt-6.1-sol`) and its reasoning option id (for example `reasoningEffort` or `variant`). Set that option to `high`. Do not change any other option.
 
-Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
+## 2. Pin the change
 
-Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside two parallel subagents.
+The fixed point is what the user named (a branch, tag, commit, or `HEAD~n`); otherwise use the merge-base with the default branch, and state which you chose.
 
-### 2. Identify the spec source
+The change is everything since the merge-base, **including uncommitted work**, because `implement` leaves its work uncommitted:
 
-Look for the originating spec, in this order:
+- `git diff <merge-base>` for tracked changes, committed or not.
+- `git ls-files --others --exclude-standard` for new untracked files. The reviewer reads these whole.
+- `git log <merge-base>..HEAD --oneline` for the commit list.
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.) - fetch via the workflow in `docs/agents/issue-tracker.md`.
-2. A path the user passed as an argument.
-3. A PRD or spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there is not one, the **Spec** subagent will skip and report "no spec available".
+Confirm the ref resolves and the change is not empty before going further.
 
-### 3. Identify the standards sources
+## 3. Gather the sources
 
-Anything in the repository that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
+- **Spec**: issue references in commit messages or the branch name (fetch them through `docs/agents/issue-tracker.md`), a path the user passed, or a spec file under `docs/`, `specs/`, or `.scratch/` that matches the branch. If none is found, ask once; if there is none, the reviewer skips the spec axis.
+- **Standards**: search the repository for every file that documents how code should be written. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list.
 
-On top of whatever the repository documents, the Standards axis always carries the **smell baseline** below - a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repository documents nothing. Two rules bind it:
+## 4. Delegate the review
 
-- **The repository overrides.** A documented repository standard always wins; where it endorses something the baseline would flag, suppress the smell.
-- **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation - and, like any standard here, skip anything tooling already enforces.
+Write the task with pointers, not copies: the reviewer shares this checkout and can run the git commands and read the files itself. Paste only what it cannot reach, such as fetched issue text. The task states:
 
-Each smell reads _what it is_ followed by _how to fix it_; match it against the diff:
+- The reviewer must not modify the checkout; another agent verifies and fixes its findings.
+- The change from step 2: the diff command, the untracked files, and the commit list.
+- What to look for: bugs the change introduces, with the input or state that triggers each; gaps or wrong behavior against the spec; and violations of the standards files. Skip anything tooling already enforces.
+- The report format: findings only, most severe first, each with an id (`R1`, `R2`, …), severity (blocking, high, medium, low), `file:line`, the claim, the evidence, and a suggested fix.
 
-- **Mysterious Name** - a function, variable, or type whose name does not reveal what it does or holds. Rename it; if no honest name comes, the design is murky.
-- **Duplicated Code** - the same logic shape appears in more than one hunk or file in the change. Extract the shared shape and call it from both.
-- **Feature Envy** - a method that reaches into another object's data more than its own. Move the method onto the data it envies.
-- **Data Clumps** - the same few fields or parameters keep travelling together (a type wanting to be born). Bundle them into one type and pass that.
-- **Primitive Obsession** - a primitive or string standing in for a domain concept that deserves its own type. Give the concept its own small type.
-- **Repeated Switches** - the same `switch` or `if` cascade on the same type recurs across the change. Replace it with polymorphism, or one map both sites share.
-- **Shotgun Surgery** - one logical change forces scattered edits across many files in the diff. Gather what changes together into one module.
-- **Divergent Change** - one file or module is edited for several unrelated reasons. Split it so each module changes for one reason.
-- **Speculative Generality** - abstraction, parameters, or hooks added for needs the spec does not have. Delete it; inline back until a real need appears.
-- **Message Chains** - long `a.b().c().d()` navigation the caller should not depend on. Hide the walk behind one method on the first object.
-- **Middle Man** - a class or function that mostly just delegates onward. Cut it and call the real target directly.
-- **Refused Bequest** - a subclass or implementer that ignores or overrides most of what it inherits. Drop the inheritance and use composition.
+Call `delegate_task` with:
 
-### 4. Spawn both subagents in parallel
+- `task`: the task above.
+- `role`: `review`; `title`: `Code review: <branch or change>`.
+- `target`: the provider instance, model id, and reasoning option from step 1.
+- `isolation`: `shared`. A worktree would leave out the uncommitted work under review.
+- `mode`: `wait`, with `timeoutMs` of 1800000. If the wait ends before the reviewer reports, follow the `next` instruction the tool returns; do not poll.
 
-Spawn two isolated subagents concurrently using the host's subagent mechanism.
+Do not edit the checkout while the reviewer is reading it.
 
-**Standards subagent prompt** - include:
+## 5. Triage every finding
 
-- The full diff command and commit list.
-- The list of standards-source files you found in step 3, plus the smell baseline from step 3 pasted in full. The subagent has no other access to it.
-- The brief: "Report, per file and hunk where relevant: (a) every place the diff violates a documented standard, citing the standard (file and rule); and (b) any baseline smell you spot, naming it and quoting the hunk. Distinguish hard violations from judgement calls. Documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repository standard overrides the baseline. Skip anything tooling enforces. Stay under 400 words."
+Treat each finding as a claim to check, not an instruction. For each one, read the cited code and the surrounding context yourself, then give exactly one verdict:
 
-**Spec subagent prompt** - include:
+- **Accept**: the defect is real and the fix belongs in this change.
+- **Modify**: the defect is real, but the finding is wrong in part (location, severity, cause, or fix). Restate it correctly; the restated version is what you address.
+- **Reject**: the claim is false on inspection, already handled, contradicted by a documented repository standard or the spec, or a preference with no concrete cost. Give the reason in one line.
 
-- The diff command and commit list.
-- The path or fetched contents of the spec.
-- The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that was not asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Stay under 400 words."
+A real issue outside this change's scope is a **Reject** with "out of scope" and a suggested follow-up. Never accept a finding on the reviewer's word alone, and never reject one without checking the code.
 
-If the spec is missing, skip the Spec subagent and note this in the final report.
+## 6. Address accepted findings
 
-### 5. Aggregate
+Fix every **Accept** and **Modify** finding, most severe first. Where a test seam exists, write a failing test that shows the defect before fixing it. Ask the user first only when a fix would change the agreed public contract, product behavior, or scope.
 
-Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do not merge or rerank findings. The two axes are deliberately separate (see _Why two axes_).
+Rerun the checks the fixes affect. Do not commit unless the user asks.
 
-End with a one-line summary: total findings per axis, and the worst issue within each axis (if any). Do not pick a single winner across axes; that is the reranking the separation exists to prevent.
+## 7. Report
 
-## Why two axes
-
-A change can pass one axis and fail the other:
-
-- Code that follows every standard but implements the wrong thing: **Standards pass, Spec fail.**
-- Code that does exactly what the issue asked but breaks the project's conventions: **Spec pass, Standards fail.**
-
-Reporting them separately stops one axis from masking the other.
+1. The reviewer: provider instance, model, reasoning level, and the fixed point.
+2. A triage table: ID, title, verdict (Accept / Modify / Reject), and a one-line reason.
+3. For each accepted or modified finding: what changed, with `file:line` references.
+4. Checks run, as passed, failed, or not run.
+5. Rejected out-of-scope findings worth a follow-up.
