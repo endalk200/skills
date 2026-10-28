@@ -5,7 +5,7 @@ Prefer `effect/Cache` over a `Map` + timestamp + prune-loop cache when its keyed
 ## Core Rules
 
 - `Cache.make({ capacity, lookup, timeToLive })` caches per-key lookups with one fixed TTL for all entries.
-- `Cache.makeWith(lookup, { capacity, timeToLive(exit, key) })` computes TTL per entry from the lookup's `Exit` — the tool for "cache successes, not failures".
+- `Cache.makeWith(lookup, { capacity, timeToLive(exit, key) })` computes TTL per entry from the lookup's `Exit`: the tool for "cache successes, not failures".
 - Concurrent `Cache.get` calls for the same missing key share one pending lookup.
 - `capacity` is required and bounds the cache.
 - Return a zero TTL (`0` or `"0 millis"`) from `timeToLive` to avoid caching transient failures or degraded fallbacks without failing the caller. A short negative-cache TTL can be appropriate for stable failures such as not-found results.

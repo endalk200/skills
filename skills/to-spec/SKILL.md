@@ -1,12 +1,12 @@
 ---
 name: to-spec
-description: Turn the current conversation into a spec and publish it to the project issue tracker — no interview, just synthesis of what you've already discussed.
+description: "Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you've already discussed."
 disable-model-invocation: true
 ---
 
 This skill takes the current conversation context and codebase understanding and produces a spec. Synthesize what is already agreed; ask only about an unresolved decision that would materially change the public contract, product behavior, or agreed scope.
 
-The issue tracker and triage label vocabulary should have been provided to you — run `setup-skills` if not.
+The issue tracker and triage label vocabulary should have been provided to you. If not, run `setup-skills` first.
 
 ## Process
 
@@ -14,7 +14,7 @@ The issue tracker and triage label vocabulary should have been provided to you �
 
 2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better - the ideal number is one.
 
-State the selected seams and continue when they follow the accepted scope and repository conventions. Ask only when the choice would materially change the agreed public contract, product behavior, or scope and that change is not already authorized. Continue independent authorized work while an answer is pending.
+State the selected seams, each with a one-line note on what it catches and what it misses, and continue. Ask only when a seam would change the agreed public contract, product behavior, or scope.
 
 3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
 
@@ -54,7 +54,7 @@ A list of implementation decisions that were made. This can include:
 
 Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
 
-Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts — not a working demo, just the important bits.
+Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts, not a working demo, just the important bits.
 
 ## Testing Decisions
 

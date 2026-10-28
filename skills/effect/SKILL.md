@@ -13,7 +13,7 @@ Work source-verified: project conventions and the project-pinned Effect source t
 
 Identify the applicable project conventions and resolve the installed `effect` version once for the task. Compare it with `references/UPSTREAM.md` and reuse this result while the dependency version is unchanged.
 
-Inspect project-pinned source for introduced APIs, changed semantics, uncertain behavior, or known version mismatches; use `source-context` when the required source is missing. Reuse applicable evidence while the covered API, usage, and version are unchanged.
+Inspect project-pinned source for introduced APIs, changed semantics, uncertain behavior, or known version mismatches; when the required source is missing, read the `source-context` skill completely and follow it. Reuse applicable evidence while the covered API, usage, and version are unchanged.
 
 Use the branch chooser to load only the reference sections needed for the current change, consulting additional sections as the work requires them.
 

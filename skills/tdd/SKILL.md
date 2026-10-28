@@ -5,32 +5,32 @@ description: Test-driven development. Use when the user wants to build features 
 
 # Test-Driven Development
 
-TDD is the red → green → refactor loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle — consult them before and during the loop, not after.
+TDD is the red → green → refactor loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle: consult them before and during the loop, not after.
 
-When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
+When exploring the codebase, read `GLOSSARY.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
 
 ## What a good test is
 
-Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification — "user can checkout with valid cart" tells you exactly what capability exists — and survives refactors because it doesn't care about internal structure.
+Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification: "user can checkout with valid cart" tells you exactly what capability exists, and it survives refactors because it doesn't care about internal structure.
 
 See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.
 
-## Seams — where tests go
+## Seams: where tests go
 
 A **seam** is the place where the tested module presents its interface: where you observe behavior without reaching inside. Tests live at seams, never against internals.
 
-Before writing a test, identify the seam under test using the accepted scope, existing interfaces, and repository conventions. State the choice and proceed for routine implementation decisions, including new seams within the authorized design. Ask only when the choice would materially change the agreed public contract, product behavior, or scope and that change is not already authorized. Continue independent authorized work while an answer is pending. Choose seams that exercise critical paths and complex logic.
+Before writing a test, pick the seam under test from the accepted scope, existing interfaces, and repository conventions. Choose seams that exercise critical paths and complex logic. Give each proposed seam a one-line note on what it catches and what it misses, state the choice, and proceed. Ask first only when a seam would change the agreed public contract, product behavior, or scope.
 
-When the shape of that interface is itself in question — how deep the module is, where the seam belongs, or what the interface should expose — use the `codebase-design` skill for its module, interface, depth, seam, adapter, leverage, and locality vocabulary. Consult it as design reference rather than starting a separate session.
+When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), read the `codebase-design` skill completely for its module, interface, depth, seam, adapter, leverage, and locality vocabulary. Consult it as a design reference rather than starting a separate session.
 
 ## Anti-patterns
 
-- **Implementation-coupled** — mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.
-- **Tautological** — the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth — a known-good literal, a worked example, the spec.
-- **Horizontal slicing** — writing all tests first, then all implementation. Bulk tests verify _imagined_ behavior: you test the _shape_ of things rather than user-facing behavior, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in **vertical slices** instead — one test → one implementation → repeat, each test a **tracer bullet** that responds to what the last cycle taught you.
+- **Implementation-coupled**: mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.
+- **Tautological**: the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth: a known-good literal, a worked example, the spec.
+- **Horizontal slicing**: writing all tests first, then all implementation. Bulk tests verify _imagined_ behavior: you test the _shape_ of things rather than user-facing behavior, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in **vertical slices** instead: one test → one implementation → repeat, each test a **tracer bullet** that responds to what the last cycle taught you.
 
 ## Rules of the loop
 
 - **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
-- **Refactor after green.** Improve names and structure while keeping behavior unchanged and the tests passing. Do not add new behavior during refactoring; broader architectural changes belong in the review stage (see the `code-review` skill).
+- **Refactor after green.** Improve names and structure while keeping behavior unchanged and the tests passing. Do not add new behavior during refactoring. Remove what the minimal green step left behind (hard-coded values, per-test special cases, placeholder names); `code-review` checks for these. Broader architectural changes belong in the review stage.

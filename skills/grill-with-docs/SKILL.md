@@ -4,4 +4,4 @@ description: Grill the user relentlessly to sharpen a plan or design while maint
 disable-model-invocation: true
 ---
 
-Run a `grilling` session using the `domain-modeling` skill.
+Read the `grilling` and `domain-modeling` skills completely and run a `grilling` session that applies both.
