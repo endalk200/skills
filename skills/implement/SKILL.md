@@ -12,4 +12,6 @@ Read the `tdd` skill completely and apply it where possible, at seams selected w
 
 Run affected checks during implementation and complete the checks required by the accepted task and repository CI before declaring readiness. Reuse passing results while the code and environment they cover remain unchanged; rerun affected checks after relevant edits or failures. Report required checks as passed, failed, or not run.
 
-When the work is ready, ask the user to run the `code-review` skill, which has a second model review the uncommitted work. It is manual-only, so do not start it yourself. Do not commit unless the user asks.
+When the work is ready, read the `code-review` skill completely and follow it on the uncommitted work. Invoking `implement` is the user's request for that review. Its reviewer runs on a provider the user picks, so ask for it at the start of this skill unless the user named one, rather than stalling here.
+
+Do not commit unless the user asks.
