@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Move issues and external pull requests through triage roles: categorise, verify, grill if needed, and write agent-ready briefs.
+description: "Move issues and external pull requests through triage roles: categorise, verify, grill if needed, and write agent-ready briefs."
 disable-model-invocation: true
 ---
 
