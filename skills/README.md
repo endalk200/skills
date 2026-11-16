@@ -20,8 +20,7 @@ Claude Code users should note that manual-only frontmatter is supported for regu
 
 | Skill                                                                     | Purpose                                                                                                            | Invocation      |
 | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | --------------- |
-| [`babysit-pr`](babysit-pr/SKILL.md)                                       | Validate and triage PR review findings before addressing selected items.                                           | Manual          |
-| [`code-review`](code-review/SKILL.md)                                     | Have GPT-6.1 Sol review the change as a T3 Code child agent, then triage and fix its findings.                     | Manual          |
+| [`code-review`](code-review/SKILL.md)                                     | Triage and fix findings from a GPT-6.1 Sol review of the change, or from reviewers on an open PR.                  | Manual          |
 | [`codebase-design`](codebase-design/SKILL.md)                             | Apply deep-module vocabulary and principles to interfaces, seams, testability, and architecture.                   | Model or manual |
 | [`commit`](commit/SKILL.md)                                               | Create focused, safe commits using the Conventional Commits format.                                                | Manual          |
 | [`create-pr`](create-pr/SKILL.md)                                         | Publish the current branch as a review-ready pull or merge request.                                                | Model or manual |
