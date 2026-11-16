@@ -11,9 +11,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / "skills"
-CATALOG = SKILLS_DIR / "README.md"
 PLUGIN = ROOT / ".claude-plugin" / "plugin.json"
 ROOT_README = ROOT / "README.md"
+CATALOG = ROOT_README
 
 
 def frontmatter(text: str, path: Path, errors: list[str]) -> str:
@@ -104,7 +104,7 @@ def main() -> int:
 
     catalog_text = CATALOG.read_text()
     catalog_entries = re.findall(
-        r"\[`([^`]+)`\]\(([^/)]+)/SKILL\.md\)",
+        r"\[`([^`]+)`\]\(skills/([^/)]+)/SKILL\.md\)",
         catalog_text,
     )
     catalog_names = [label for label, _ in catalog_entries]
@@ -112,19 +112,19 @@ def main() -> int:
     for label, path in catalog_entries:
         if label != path:
             errors.append(
-                f"skills/README.md: label {label!r} points to {path!r}"
+                f"README.md catalog: label {label!r} points to {path!r}"
             )
 
     for duplicate in duplicates(catalog_paths):
-        errors.append(f"skills/README.md: duplicate entry {duplicate}")
+        errors.append(f"README.md catalog: duplicate entry {duplicate}")
 
     catalog_set = set(catalog_paths)
     for missing in sorted(active - catalog_set):
-        errors.append(f"skills/README.md: missing {missing}")
+        errors.append(f"README.md catalog: missing {missing}")
     for stale in sorted(catalog_set - active):
-        errors.append(f"skills/README.md: stale entry {stale}")
+        errors.append(f"README.md catalog: stale entry {stale}")
     if catalog_paths != sorted(catalog_paths):
-        errors.append("skills/README.md: skill entries are not alphabetical")
+        errors.append("README.md catalog: skill entries are not alphabetical")
 
     try:
         plugin_data = json.loads(PLUGIN.read_text())
@@ -177,7 +177,7 @@ def main() -> int:
         )
 
     if catalog_names != catalog_paths:
-        errors.append("skills/README.md: skill labels and paths differ")
+        errors.append("README.md catalog: skill labels and paths differ")
 
     if errors:
         print("Skill validation failed:", file=sys.stderr)
