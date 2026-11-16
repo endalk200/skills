@@ -1,44 +1,41 @@
 ---
 name: effect
 description: |
-  Effect v4 implementation and code-style guidance. Use for Effect workflows, composition and control flow, Schema models, services and Layers, Config, Schedule or retry, Cache, Stream, unstable HTTP, reactivity or Atom, and Effect tests. Resolve the project-pinned version before applying a branch.
-compatibility: Requires Effect v4. See references/UPSTREAM.md for the exact audited versions.
+  Use when writing, reviewing, or debugging Effect v4 code: Schema models, services and Layers, Config, retry or polling, caching, Streams, outgoing HTTP, Atom or reactivity UI state, or Effect tests.
+compatibility: Requires Effect v4 (4.0.0 or later). Last checked against effect 4.1.4 and @effect/tsgo 0.69.0 in November 2026.
 ---
 
 # Effect
 
-Work source-verified: project conventions and the project-pinned Effect source take precedence over this reference.
+This skill holds the _decisions_: which Effect API fits a situation, and which boundary owns it. The installed `effect` package holds the _facts_: its API, its examples, and its own agent guide. When the two disagree on a fact, the installed package wins.
 
-## Version Gate
+## Start
 
-Identify the applicable project conventions and resolve the installed `effect` version once for the task. Compare it with `references/UPSTREAM.md` and reuse this result while the dependency version is unchanged.
-
-Inspect project-pinned source for introduced APIs, changed semantics, uncertain behavior, or known version mismatches; when the required source is missing, read the `source-context` skill completely and follow it. Reuse applicable evidence while the covered API, usage, and version are unchanged.
-
-Use the branch chooser to load only the reference sections needed for the current change, consulting additional sections as the work requires them.
+1. Read the installed package's `AGENTS.md` (for example `node_modules/effect/AGENTS.md`) once per task, and the `ai-docs/src/` example it links for each topic you touch. It owns the basics: `Effect.gen`, `Effect.fn`, `Context.Service`, error handling, and running programs.
+2. When an API named here fails to typecheck, or behaves differently than described, confirm it in `node_modules/effect/src/<Module>.ts` and follow the installed version; read the `source-context` skill completely and follow it when you need upstream tests or history.
+3. Find the project's Effect diagnostics: an `effecttsgo` preset in the oxlint config, an `effect-tsgo` or `effect-language-service` script in `package.json`, or the `@effect/language-service` plugin in `tsconfig.json`. Its rule severities settle style questions. HTTP, reactivity, and `@effect/vitest` APIs are marked `@stability unstable`, so follow the project's `unstable-api-usage` setting.
+4. Load only the references whose branch the change touches.
 
 ## Branch Chooser
 
-- Application entrypoints, dual APIs, pipelines, nested composition, branching, pattern matching, loops, traversal, or combining effects: read `references/CODE_STYLE.md`.
-- Data models, schemas, brands, variants, optional keys, or decoders: read `references/SCHEMA.md`.
-- Services, layers, runtime wiring, errors, `Effect.fn`, or test services: read `references/SERVICES_LAYERS.md`.
-- Runtime config, env variables, `ConfigProvider`, or `layerConfig`: read `references/CONFIG.md`.
-- Retry, repeat, polling, backoff, jitter, rate-limit-aware policies, or pass loops: read `references/SCHEDULING.md`.
+- Program entrypoints, pipelines versus generators, branching, pattern matching, loops, or combining and traversing effects: read `references/CODE_STYLE.md`.
+- Data models, schemas, brands, variants, optional keys, typed errors, or decoders: read `references/SCHEMA.md`.
+- Services, layers, runtime wiring, `Effect.fn` transforms, background work, or `Config` and `ConfigProvider`: read `references/SERVICES_LAYERS.md`.
+- Retry, repeat, polling, backoff, jitter, or rate-limit-aware policies: read `references/SCHEDULING.md`.
 - Memoization, per-key TTL caches, deduplicating concurrent lookups, or request batching: read `references/CACHING.md`.
-- Streams, event sources, async iterables, queues/pubsubs, pagination, backpressure, or stream consumers: read `references/STREAMS.md`.
-- `effect/unstable/reactivity`, `@effect/atom-*`, `AsyncResult`, API-backed UI, frontend queries or mutations, atom runtimes, reactivity keys, optimistic updates, or stream-backed UI state: read `references/EFFECT_ATOM.md`.
-- Outgoing HTTP calls, Effect HttpClient, status handling, or HTTP rate limiting: read `references/HTTP_CLIENTS.md`.
-- Effect tests, time, sleeps, concurrency synchronization, or fakes: read `references/TESTING.md`.
+- Streams, event sources, callbacks, queues or pubsubs, pagination, backpressure, or stream consumers: read `references/STREAMS.md`.
+- Outgoing HTTP calls, status handling, or HTTP rate limiting: read `references/HTTP_CLIENTS.md`.
+- `effect/reactivity`, `@effect/atom-*`, `AsyncResult`, API-backed UI, atom runtimes, reactivity keys, optimistic updates, or stream-backed UI state: read `references/EFFECT_ATOM.md`.
+- Effect tests, time, sleeps, concurrency synchronization, fakes, or test config: read `references/TESTING.md`.
 
 ## Cross-Cutting Defaults
 
-- Define reusable traced operation boundaries with `Effect.fn("Domain.operation")`.
-- Use `Effect.fnUntraced` for reusable helpers whose stack-frame and span metadata are intentionally unnecessary.
-- Keep expected failures typed and preserve defects and interruption for the owning supervision boundary.
-- Decode unknown boundary input with `Schema.decodeUnknownEffect`; use `schema.makeEffect` for typed constructor input whose type-side validation can fail.
-- Keep long-lived resources and background work scoped to the Layer or component that owns their lifetime.
+- Keep expected failures typed; let defects and interruption reach the owning supervision boundary.
+- Give Schema classes, errors, and opaque types a brand type argument (`references/SCHEMA.md`).
+- Decode unknown boundary input with `Schema.decodeUnknownEffect`; use `schema.makeEffect` for typed constructor input whose validation can fail.
+- Scope long-lived resources and background work to the Layer or component that owns their lifetime.
 - Retry only idempotent operations, at the narrowest boundary that can classify the failure truthfully.
-- Preserve type information and solve Effect typing problems without unchecked casts or non-null assertions.
+- Solve Effect typing problems with precise types rather than unchecked casts or non-null assertions.
 
 ## Boundary Rules
 
@@ -46,17 +43,17 @@ Use the branch chooser to load only the reference sections needed for the curren
 - Place business rules in services or domain functions.
 - Wrap HTTP clients, SDKs, CLIs, and external integrations in named effects at adapter boundaries.
 - Decode persisted rows with Schema or SQL-specific helpers when values are not trivially trusted.
-- Keep provider/network calls outside authoritative database transactions.
-- Catch or retry only when the current boundary has a truthful response.
-- Let exhausted failures remain visible unless the boundary has a real fallback.
+- Keep provider and network calls outside authoritative database transactions.
+- Catch or retry only where the current boundary has a truthful response, and let exhausted failures stay visible unless the boundary has a real fallback.
 
 ## Completion Criterion
 
 Before finishing:
 
-- account for every Effect API introduced or changed against the project-pinned source
-- apply the guidance relevant to the changed behavior
-- run the narrowest relevant typecheck and tests
-- leave no unchecked cast, swallowed interruption, unscoped long-lived work, or unbounded retry introduced by the change
+- every Effect API introduced or changed typechecks against the installed version
+- the guidance of every touched branch is applied
+- the narrowest relevant typecheck and tests pass
+- the project's Effect diagnostics report nothing new on the changed files: run its lint (`oxlint --type-aware <files>` with an `effecttsgo` preset), its patched `tsc`, or `effect-language-service diagnostics --file <file>`
+- the change introduces no unchecked cast, swallowed interruption, unscoped long-lived work, or unbounded retry
 
 The work is complete only when every item above is checkable and satisfied.

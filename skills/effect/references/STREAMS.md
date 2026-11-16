@@ -1,5 +1,7 @@
 # Streams
 
+The installed `ai-docs/src/03_stream` examples own stream construction and operators. This reference owns source and consumer choice, lifetime, and failure policy.
+
 ## Mental Model
 
 `Stream<A, E, R>` is an effectful source that can emit many `A` values over time, fail with `E`, and require services `R`. Streams are pull-based and backpressured; consumption controls demand.
@@ -7,7 +9,7 @@
 Use streams for sources that are naturally many-valued and time-ordered:
 
 - gateway events
-- provider callbacks adapted through queues
+- provider callbacks
 - subscription/event logs
 - paginated APIs
 - file/stdin/platform streams
@@ -20,7 +22,8 @@ Use `Effect.repeat(...)` with `Schedule` for a repeated effect with no emitted v
 
 - In-memory values: `Stream.make(...)` or `Stream.fromIterable(...)`.
 - Test fixtures: `Stream.fromIterable(...)`, often with `Stream.concat(Stream.never)` for an open subscription.
-- Queue-backed callback boundary: `Queue` plus `Stream.fromQueue(...)`.
+- Callback-based API: `Stream.callback(...)`. Register the listener with `Effect.acquireRelease` inside it so the listener is removed when the stream ends, and set `bufferSize` and `strategy`, because the default buffer is unbounded.
+- Producer that other code pushes into: `Queue` plus `Stream.fromQueue(...)`.
 - Broadcast events: `PubSub` plus `Stream.fromPubSub(...)`.
 - Latest-value state plus updates: `SubscriptionRef`.
 - Schedule-generated ticks/values: `Stream.fromSchedule(...)`.

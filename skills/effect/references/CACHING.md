@@ -47,7 +47,7 @@ A cache cannot fix a lookup that pays a scoped acquisition per call, such as SDK
 
 ```ts
 // Bad: every cache miss acquires a fresh client
-const lookup = (id: string) =>
+const lookupPerMiss = (id: string) =>
   getRecord(id).pipe(Effect.provide(apiClientLayer(options)))
 
 // Good: client built once for the layer's lifetime; misses are one API call

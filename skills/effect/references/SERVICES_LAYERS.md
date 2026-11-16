@@ -1,18 +1,20 @@
-# Services, Layers, And Modules
+# Services, Layers, And Config
+
+The installed `AGENTS.md` and its `03_services` examples own the `Context.Service` shape. This reference owns module surface, layer choice, wiring, and config.
 
 ## Module Surface
 
-Follow the existing codebase's module style. When there is no established convention, use a domain-named `Context.Service` class and keep its primary layers beside it.
+Follow the existing module style. When there is none, use a domain-named `Context.Service` class with its primary layers as static members.
 
 ```ts
-export class NotFound extends Schema.TaggedErrorClass<NotFound>()(
+export class NotFound extends Schema.TaggedError<NotFound, { readonly brand: unique symbol }>()(
   "UserRepo.NotFound",
   { id: UserId },
 ) {}
 
 export class UserRepo extends Context.Service<UserRepo, {
   readonly get: (id: UserId) => Effect.Effect<User, NotFound | PersistenceError>
-}>()("@app/UserRepo") {
+}>()("myapp/users/UserRepo") {
   static readonly layer = Layer.effect(
     this,
     Effect.gen(function* () {
@@ -28,29 +30,26 @@ export class UserRepo extends Context.Service<UserRepo, {
 }
 ```
 
-Export the intentional service, error, and layer surface. Keep row codecs, local schemas, and implementation helpers private. Use ordinary ES modules and barrels for organization.
+Export the intentional service, error, and layer surface. Keep row codecs, local schemas, and implementation helpers private.
+
+Expose a zero-argument operation as a readonly `Effect` value (`readonly list: Effect.Effect<...>`): an Effect is already lazy.
 
 ## Layer Constructors
-
-Choose the layer constructor that matches the thing produced.
 
 ```ts
 Layer.succeed(Service, impl)       // already-built service
 Layer.sync(Service, () => impl)    // lazy synchronous service
-Layer.effect(Service, makeEffect)  // effectful service acquisition
+Layer.effect(Service, makeEffect)  // effectful acquisition; the default for real implementations
 ```
 
-Guidance:
-
-- Default real implementations to `Layer.effect(Service, Effect.gen(...))`.
-- Use `Layer.effectContext(...)` when one acquisition intentionally supplies multiple services, especially first-class test stubs or one client backing several service tags.
-- Use `Layer.unwrap(...)` when config or runtime discovery chooses/builds the layer.
+- Use `Layer.effectContext(...)` when one acquisition supplies several services, such as a first-class test stub or one client backing several service tags.
+- Use `Layer.unwrap(...)` when config or runtime discovery chooses or builds the layer.
 - Use `Layer.fresh(...)` or `Effect.provide(layer, { local: true })` only when a test or operation needs isolated acquisition.
-- Use `Context.Reference` rarely, only for ambient/defaultable runtime references where a safe default is real.
+- Use `Context.Reference` only for ambient references with a real safe default.
 
 ## Long-Lived Work
 
-A layer that starts a stream, listener, worker, subscription, or forever loop must fork that work into the layer scope. Layer acquisition must complete.
+A layer that starts a stream, listener, worker, subscription, or forever loop forks that work into the layer scope, so layer acquisition completes.
 
 ```ts
 export const layer = Layer.effectDiscard(
@@ -65,24 +64,19 @@ export const layer = Layer.effectDiscard(
 )
 ```
 
-Guidance:
-
 - Use `Effect.forkScoped`, `FiberSet`, or `FiberMap` for scoped background work.
-- Fork long-lived work so layer acquisition can complete.
 - Expose a public `start` method only when manual lifecycle control is part of the domain.
 
 ## Runtime Wiring
 
-- Use `Layer.provide(...)` to hide an implementation dependency.
-- Use `Layer.provideMerge(...)` only when the dependency should remain exposed for downstream consumers.
-- Use `Layer.mergeAll(...)` for independent exposed layers.
-- Prefer flat, topologically sorted runtime layer values with named subgraphs.
-- Choose `provideMerge` from the intended exposed service graph.
-- Keep authority and lifecycle dependencies visible in the layer topology.
+- Use `Layer.provide(...)` to hide an implementation dependency, and `Layer.provideMerge(...)` only when downstream consumers should still see it.
+- Use `Layer.mergeAll(...)` for independent layers.
+- Build the runtime layer as flat, topologically sorted values with named subgraphs, so authority and lifecycle dependencies stay visible.
+- Provide layers at the application entrypoint, test, or runtime boundary rather than inside service code.
 
-## Effect.fn
+## Effect.fn Transforms
 
-Use extra `Effect.fn(...)` arguments for wrappers that apply to the whole function call. Each transform receives `(effect, ...originalArgs)`.
+Extra `Effect.fn(...)` arguments wrap the whole call. Each receives `(effect, ...originalArgs)`.
 
 ```ts
 const readAttachment = Effect.fn("Attachment.read")(
@@ -91,40 +85,70 @@ const readAttachment = Effect.fn("Attachment.read")(
   },
   (effect, ref) =>
     effect.pipe(
-      attachmentError("Attachment.read", { attachmentId: ref.id }),
+      Effect.annotateLogs({ attachmentId: ref.id }),
+      persistenceError("Attachment.read"),
     ),
 )
 ```
 
-Good whole-function transforms:
-
-- error classification
-- localized recovery
-- logging annotations
-- spans
-- retry
-- timeout
-- ensuring cleanup
-- small local provisioning
-- result mapping
-
-Guidance:
-
-- Keep the generator body focused on the core workflow.
-- Use transforms when the wrapper needs original arguments.
-- Keep transforms short; one or two whole-function concerns are usually enough.
-- Handle local branches inside the workflow body.
+Good whole-call transforms are error classification, localized recovery, log annotations, spans, retry, timeout, cleanup, small local provisioning, and result mapping. Keep the generator body on the core workflow, keep each function to one or two transforms, and handle local branches inside the body.
 
 ## Operation Error Helpers
 
-For boundary errors with operation labels, prefer a shared curried `mapError` helper over hand-writing wrappers in every module.
+For boundary errors that carry an operation label, share one curried `mapError` helper per error instead of hand-writing wrappers in every module.
 
 ```ts
-const persistenceError = operationError(PersistenceError.make)
+const operationError =
+  <E>(make: (fields: { readonly operation: string; readonly cause: unknown }) => E) =>
+  (operation: string) =>
+    Effect.mapError((cause: unknown) => make({ operation, cause }))
 
-const row = yield* query.pipe(
-  persistenceError("UserRepository.findById"),
+const persistenceError = operationError((fields) => new PersistenceError(fields))
+
+const row = yield* query.pipe(persistenceError("UserRepository.findById"))
+```
+
+Name each helper after the error it produces (`persistenceError`, `projectionError`). Payload labels complement `Effect.fn` spans; they do not replace them.
+
+## Config
+
+Read runtime configuration through `Config` and provider layers, and keep direct environment access at the application boundary.
+
+```ts
+export const layerFromEnvironment = Layer.effect(
+  Configuration,
+  Effect.gen(function* () {
+    const apiKey = yield* Config.Redacted("API_KEY")
+    const model = yield* Config.option(Config.String("MODEL"))
+    const enabled = yield* Config.Boolean("FEATURE_ENABLED").pipe(
+      Config.withDefault(false),
+    )
+    const dataDirectory = yield* Config.schema(AbsolutePath, "APP_DATA_DIR")
+
+    return Configuration.of({ apiKey, model, enabled, dataDirectory })
+  }),
 )
 ```
 
-Name the local helper after the error it produces, such as `persistenceError`, `projectionError`, or `processingError`. Use `Effect.fn(...)` and spans for observability in addition to payload labels, not instead of them.
+- `Config<T>` is yieldable and reads the current `ConfigProvider`; the default is `ConfigProvider.fromEnv()`.
+- Use `Config.Redacted` for credentials, `Config.schema(schema, name)` or `Config.mapEffect` for refined values, and `Config.option` for semantic absence.
+- `Config.withDefault` replaces missing data only; malformed values still fail. Use `Config.orElse` only when every parse failure should fall back.
+- Built-in providers read an empty string as missing. Pass `{ preserveEmptyStrings: true }` when an empty value is meaningful.
+- `ConfigProvider.layer(provider)` replaces the active provider; `ConfigProvider.layerAdd(provider)` adds a fallback, and `{ asPrimary: true }` makes it override.
+- `ConfigProvider.constantCase` reads camelCase keys from `SCREAMING_SNAKE_CASE` variables; `ConfigProvider.nested(...)` scopes a provider under a prefix.
+- Treat `.env`, directory, and environment providers as startup sources rather than business-workflow reads.
+
+A library-style service can offer both a concrete `layer(options)` and a config-backed `layerConfig`, so tests pass plain values:
+
+```ts
+export const layerConfig = (config: Config.Wrap<ClientOptions>) =>
+  Layer.effect(
+    Client,
+    Config.unwrap(config).pipe(
+      Effect.flatMap(makeClient),
+      Effect.map((client) => Client.of(client)),
+    ),
+  )
+```
+
+Config in tests lives in `TESTING.md`.
