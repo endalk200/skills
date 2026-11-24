@@ -11,8 +11,8 @@ This skill holds the _decisions_: which Effect API fits a situation, and which b
 
 ## Start
 
-1. Read the installed package's `AGENTS.md` (for example `node_modules/effect/AGENTS.md`) once per task, and the `ai-docs/src/` example it links for each topic you touch. It owns the basics: `Effect.gen`, `Effect.fn`, `Context.Service`, error handling, and running programs.
-2. When an API named here fails to typecheck, or behaves differently than described, confirm it in `node_modules/effect/src/<Module>.ts` and follow the installed version; read the `source-context` skill completely and follow it when you need upstream tests or history.
+1. Resolve the installed package's folder from a workspace that depends on it: `node -p "require('path').dirname(require.resolve('effect/package.json'))"`. Isolated installs (Bun, pnpm) keep it outside the root `node_modules`; resolve `@effect/*` packages the same way. Read its `AGENTS.md` once per task, and the `ai-docs/src/` example it links for each topic you touch. It owns the basics: `Effect.gen`, `Effect.fn`, `Context.Service`, error handling, and running programs.
+2. When an API named here fails to typecheck, or behaves differently than described, confirm it in that folder's `src/<Module>.ts` and follow the installed version; read the `source-context` skill completely and follow it when you need upstream tests or history.
 3. Find the project's Effect diagnostics: an `effecttsgo` preset in the oxlint config, an `effect-tsgo` or `effect-language-service` script in `package.json`, or the `@effect/language-service` plugin in `tsconfig.json`. Its rule severities settle style questions. HTTP, reactivity, and `@effect/vitest` APIs are marked `@stability unstable`, so follow the project's `unstable-api-usage` setting.
 4. Load only the references whose branch the change touches.
 
